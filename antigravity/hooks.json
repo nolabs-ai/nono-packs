@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 10000,
+            "command": "$HOME/.gemini/config/plugins/nono/bin/nono-hook.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

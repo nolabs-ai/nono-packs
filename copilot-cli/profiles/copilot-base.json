@@ -1,0 +1,41 @@
+{
+  "extends": "default",
+  "meta": {
+    "name": "copilot-cli-base",
+    "description": "Base profile for sandboxed GitHub Copilot CLI sessions. Extended by copilot-cli and copilot-cli-proxy.",
+    "author": "always-further"
+  },
+  "workdir": {
+    "access": "readwrite"
+  },
+  "groups": {
+    "include": [
+      "rust_runtime",
+      "git_config"
+    ]
+  },
+  "filesystem": {
+    "allow": [
+      "/usr/local/Caskroom/copilot-cli",
+      "$HOME/.copilot",
+      "$HOME/Library/Caches/copilot",
+      "$HOME/.cache/copilot/"
+    ],
+    "read": [
+      "$HOME/.config/gh",
+      "$HOME/.agents/skills"
+    ],
+    "read_file": [
+      "$HOME/Library/Application Support/Code/User/keybindings.json",
+      "$HOME/Library/Application Support/Microsoft/DeveloperTools/deviceid"
+    ]
+  },
+  "open_urls": {
+    "allow_origins": ["https://github.com"],
+    "allow_localhost": true
+  },
+  "allow_launch_services": true,
+  "unsafe_macos_seatbelt_rules": [
+    "(allow user-preference-read)"
+  ]
+}

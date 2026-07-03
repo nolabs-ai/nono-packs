@@ -1,0 +1,10 @@
+{
+    "extraKnownMarketplaces": {
+      "always-further": {      
+        "source": {      
+          "source": "github",
+          "repo": "$NS/nono-packs-copilot"
+        }                                 
+      }  
+    }  
+  } 

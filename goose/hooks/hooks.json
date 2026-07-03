@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "AfterShellExecution": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${PLUGIN_ROOT}/bin/nono-hook.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${PLUGIN_ROOT}/bin/nono-hook.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

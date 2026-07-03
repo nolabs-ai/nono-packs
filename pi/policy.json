@@ -1,0 +1,106 @@
+{
+  "extends": "default",
+  "meta": {
+    "name": "pi",
+    "version": "1.0.0",
+    "description": "Pi Coding Agent profile (registry-managed)",
+    "author": "always-further"
+  },
+  "groups": {
+    "include": [
+      "node_runtime",
+      "rust_runtime",
+      "python_runtime",
+      { "name": "user_caches_macos", "when": "macos" },
+      { "name": "user_caches_linux", "when": "linux" },
+      { "name": "linux_sysfs_read", "when": "linux" },
+      "nix_runtime",
+      "git_config",
+      "unlink_protection"
+    ]
+  },
+  "security": {
+    "signal_mode": "isolated",
+    "capability_elevation": false
+  },
+  "filesystem": {
+    "allow": [
+      "$HOME/.pi",
+      "$NONO_CONFIG/profile-drafts"
+    ],
+    "read": [
+      "$HOME/.nvm/",
+      "$HOME/.agents/skills",
+      "$NONO_PACKAGES",
+      "$NONO_CONFIG/profiles"
+    ],
+    "suppress_save_prompt": [
+      "$NONO_PACKAGES/always-further/pi"
+    ]
+  },
+    "network": {
+    "block": false,
+    "allow_domain": [],
+    "credentials": [],
+    "open_port": [],
+    "listen_port": [],
+    "custom_credentials": {
+      "openai": {
+        "upstream": "https://api.openai.com/v1",
+        "credential_key": "OPENAI_API_KEY",
+        "inject_header": "Authorization",
+        "credential_format": "Bearer {}",
+        "env_var": "OPENAI_API_KEY"
+      },
+      "anthropic": {
+        "upstream": "https://api.anthropic.com",
+        "credential_key": "ANTHROPIC_API_KEY",
+        "inject_header": "x-api-key",
+        "credential_format": "{}",
+        "env_var": "ANTHROPIC_API_KEY"
+      },
+      "gemini": {
+        "upstream": "https://generativelanguage.googleapis.com",
+        "credential_key": "GOOGLE_API_KEY",
+        "inject_header": "x-goog-api-key",
+        "credential_format": "{}",
+        "env_var": "GEMINI_API_KEY"
+      },
+      "github": {
+        "upstream": "https://api.github.com",
+        "credential_key": "GITHUB_TOKEN",
+        "inject_header": "Authorization",
+        "credential_format": "token {}",
+        "env_var": "GITHUB_TOKEN"
+      },
+      "gitlab": {
+        "upstream": "https://gitlab.com/api",
+        "credential_key": "GITLAB_TOKEN",
+        "inject_header": "Authorization",
+        "credential_format": "Bearer {}",
+        "env_var": "GITLAB_TOKEN"
+      }
+    }
+  },
+  "workdir": { "access": "readwrite" },
+  "open_urls": {
+    "allow_origins": [
+      "https://auth.openai.com",
+      "https://claude.ai",
+      "https://github.com"
+    ],
+    "allow_localhost": true
+  },
+  "allow_launch_services": true,
+  "undo": {
+    "exclude_patterns": [
+      "node_modules",
+      ".next",
+      "__pycache__",
+      "target",
+      ".pi"
+    ],
+    "exclude_globs": ["*.tmp.[0-9]*.[0-9]*"]
+  },
+  "interactive": true
+}

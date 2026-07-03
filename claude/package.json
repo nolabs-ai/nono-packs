@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "name": "claude",
+  "version": "0.0.16",
+  "description": "Claude Code plugin and matching nono profile. Provides sandbox-aware diagnostics on permission failures and ships the claude-code profile via the registry.",
+  "license": "Apache-2.0",
+  "platforms": [
+    "macos",
+    "linux"
+  ],
+  "min_nono_version": "0.61.0",
+  "artifacts": [
+    {
+      "type": "profile",
+      "path": "policy.json",
+      "install_as": "claude",
+      "aliases": [
+        "claude-code"
+      ]
+    },
+    {
+      "type": "plugin",
+      "path": "README.md"
+    },
+    {
+      "type": "plugin",
+      "path": ".claude-plugin/plugin.json"
+    },
+    {
+      "type": "plugin",
+      "path": "hooks/hooks.json"
+    },
+    {
+      "type": "plugin",
+      "path": "bin/nono-hook.sh"
+    },
+    {
+      "type": "plugin",
+      "path": "bin/nono-hook-bash.sh"
+    },
+    {
+      "type": "plugin",
+      "path": "skills/nono-sandbox/SKILL.md"
+    },
+    {
+      "type": "plugin",
+      "path": "assets/logo.png"
+    },
+    {
+      "type": "plugin",
+      "path": "wiring/marketplace.json"
+    },
+    {
+      "type": "plugin",
+      "path": "wiring/known-marketplaces.json"
+    },
+    {
+      "type": "plugin",
+      "path": "wiring/installed-plugin.json"
+    },
+    {
+      "type": "plugin",
+      "path": "wiring/enabled-plugin.json"
+    },
+    {
+      "type": "plugin",
+      "path": "wiring/profile-drafts-dir-marker"
+    }
+  ],
+  "wiring": [
+    {
+      "type": "write_file",
+      "source": "wiring/profile-drafts-dir-marker",
+      "dest": "$NONO_CONFIG/profile-drafts/.nono-claude-pack-marker"
+    },
+    {
+      "type": "symlink",
+      "link": "$HOME/.claude/plugins/marketplaces/$NS/plugins/nono",
+      "target": "$PACK_DIR"
+    },
+    {
+      "type": "write_file",
+      "source": "wiring/marketplace.json",
+      "dest": "$HOME/.claude/plugins/marketplaces/$NS/.claude-plugin/marketplace.json"
+    },
+    {
+      "type": "symlink",
+      "link": "$HOME/.claude/plugins/cache/$NS/nono/1.0.0",
+      "target": "$PACK_DIR"
+    },
+    {
+      "type": "json_merge",
+      "file": "$HOME/.claude/plugins/known_marketplaces.json",
+      "patch": "wiring/known-marketplaces.json"
+    },
+    {
+      "type": "json_merge",
+      "file": "$HOME/.claude/plugins/installed_plugins.json",
+      "patch": "wiring/installed-plugin.json"
+    },
+    {
+      "type": "json_merge",
+      "file": "$HOME/.claude/settings.json",
+      "patch": "wiring/enabled-plugin.json"
+    }
+  ]
+}

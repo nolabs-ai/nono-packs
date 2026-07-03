@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "hooks": {
+    "PostToolUse": [
+      {
+        "type": "command",
+        "bash": "${COPILOT_PLUGIN_ROOT:-$HOME/.copilot/installed-plugins/always-further/nono}/bin/nono-hook-bash.sh"
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "type": "command",
+        "bash": "${COPILOT_PLUGIN_ROOT:-$HOME/.copilot/installed-plugins/always-further/nono}/bin/nono-hook.sh"
+      }
+    ],
+    "SessionStart": [
+      {
+        "type": "command",
+        "bash": "${COPILOT_PLUGIN_ROOT:-$HOME/.copilot/installed-plugins/always-further/nono}/bin/nono-hook-session.sh"
+      }
+    ]
+  }
+}

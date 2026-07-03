@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "plugins": {
+    "claude-autoresearch@Kexin-xu-01": [
+      {
+        "scope": "user",
+        "installPath": "$HOME/.claude/plugins/cache/Kexin-xu-01/claude-autoresearch/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "$NOW",
+        "lastUpdated": "$NOW"
+      }
+    ]
+  }
+}

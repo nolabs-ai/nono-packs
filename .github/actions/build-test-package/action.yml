@@ -1,0 +1,63 @@
+name: Build test package
+description: Build, sign, and publish a package to a test registry.
+
+inputs:
+  package-name:
+    description: Package name to publish.
+    required: true
+  package-path:
+    description: Path to the package directory.
+    required: true
+  package-version:
+    description: Package version to publish.
+    required: true
+  package-namespace:
+    description: Package namespace to publish under.
+    required: false
+    default: always-further
+  registry-url:
+    description: Registry API URL for test package publishing.
+    required: false
+    default: https://lukehinds.rat.alwaysfurther.us/api/v1
+
+runs:
+  using: composite
+  steps:
+    - name: Build files list from package.json
+      id: files
+      shell: bash
+      env:
+        PACKAGE_PATH: ${{ inputs.package-path }}
+      run: |
+        set -euo pipefail
+
+        if [ ! -f "$PACKAGE_PATH/package.json" ]; then
+          echo "ERROR: $PACKAGE_PATH/package.json does not exist"
+          exit 1
+        fi
+
+        # Always include the manifest itself; conditionally include
+        # README.md if present. Everything else comes from
+        # `artifacts[].path` so the manifest is the source of truth.
+        files_list="$RUNNER_TEMP/test-package-files.txt"
+        {
+          echo "package.json"
+          [ -f "$PACKAGE_PATH/README.md" ] && echo "README.md"
+          jq -r '.artifacts[].path' "$PACKAGE_PATH/package.json"
+        } | sort -u > "$files_list"
+
+        {
+          echo "files<<EOF"
+          cat "$files_list"
+          echo "EOF"
+        } >> "$GITHUB_OUTPUT"
+
+    - uses: always-further/agent-sign@c9426f1a00f823dd53e7b9068d910a68b43e49e9 # v0.0.11
+      with:
+        publish: "true"
+        package-name: ${{ inputs.package-name }}
+        package-namespace: ${{ inputs.package-namespace }}
+        package-version: ${{ inputs.package-version }}
+        package-path: ${{ inputs.package-path }}
+        registry-url: ${{ inputs.registry-url }}
+        files: ${{ steps.files.outputs.files }}

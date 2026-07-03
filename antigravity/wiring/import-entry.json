@@ -1,0 +1,8 @@
+[
+  {
+    "name": "nono",
+    "source": "antigravity",
+    "importedAt": "$NOW",
+    "components": ["skills", "hooks"]
+  }
+]

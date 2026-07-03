@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schemas.claude.com/plugin-marketplace.json",
+  "name": "always-further",
+  "description": "nono-managed marketplace for always-further",
+  "owner": { "name": "always-further" },
+  "plugins": [
+    {
+      "name": "nono",
+      "description": "Teaches Claude Code how to work inside a nono security sandbox. Provides sandbox-aware diagnostics on permission failures and instructions for capability management.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Always Further",
+        "url": "https://github.com/always-further"
+      },
+      "source": "./plugins/nono",
+      "category": "security",
+      "strict": false,
+      "homepage": "https://nono.sh",
+      "repository": "https://github.com/always-further/nono-packs/tree/main/claude",
+      "license": "Apache-2.0",
+      "keywords": ["nono", "sandbox", "security", "capabilities"]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "always-further": {
+    "source": {
+      "source": "directory",
+      "path": "$HOME/.openclaw/plugins/marketplaces/always-further"
+    },
+    "installLocation": "$HOME/.openclaw/plugins/marketplaces/always-further",
+    "lastUpdated": "$NOW"
+  }
+}

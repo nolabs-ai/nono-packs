@@ -1,0 +1,11 @@
+{
+  "meta": { "name": "claude-code-autoresearch", "version": "1.0.0", "description": "Claude Code + GPU for autoresearch" },
+  "extends": "claude",
+  "allow_gpu": true,
+  "filesystem": {
+    "allow": ["$HOME/autoresearch-nono", "$HOME/.cache/autoresearch/ibd", "$HOME/.cache/autoresearch/tcga", "$HOME/.cache/autoresearch/climbmix", "$HOME/.cache/torch", "$HOME/.cache/uv", "$HOME/.cache/huggingface", "$HOME/.local/share/uv", "$HOME/.nv", "$HOME/.triton", "/tmp", "/dev/shm", "$HOME/.local/share/claude", "$HOME/.local/state/claude/locks"],
+    "read": ["/proc/driver/nvidia", "/proc/meminfo", "/proc/cpuinfo", "/proc/self", "/proc/version", "/proc/sys/vm/overcommit_memory", "$HOME/shared-libs", "$HOME/.nvm", "$HOME/.local/bin", "/usr/include", "/usr/local/cuda/include", "/usr/local/cuda/bin", "/sys/bus/pci", "/sys/devices", "/sys/module/nvidia", "/etc"],
+    "read_file": ["/proc/devices", "/proc/mounts", "/proc/uptime", "/proc/sys/fs/file-max", "/proc/sys/kernel/osrelease", "/proc/sys/kernel/ostype", "/proc/sys/vm/mmap_min_addr", "$HOME/.ssh/autoresearch_github"],
+    "allow_file": ["$HOME/.ssh/known_hosts"]
+  }
+}

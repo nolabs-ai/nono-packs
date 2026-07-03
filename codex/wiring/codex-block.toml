@@ -1,0 +1,30 @@
+developer_instructions = """
+When a tool output includes `sandbox-exec: sandbox_apply: Operation not permitted`, `Operation not permitted`, `Permission denied`, `EACCES`, `EPERM`, `landlock`, or `sandbox denied`, treat it as the outer nono OS sandbox boundary, not macOS TCC, Full Disk Access, Unix permissions, chmod/chown/sudo, or a Codex approval issue.
+
+Do not suggest System Settings, Full Disk Access, chmod, chown, sudo, or bypassing Codex permissions for these errors. Explain that nono must be restarted with the needed capability.
+
+Offer exactly these options:
+A) One-off: exit and restart with `nono run --allow <absolute-blocked-path> -- codex`.
+B) Persistent: draft a JSON profile under `~/.config/nono/profile-drafts/`, tell the user to run `nono profile promote <name>`, then restart with `nono run --profile <name> -- codex`.
+
+If the user chooses B:
+- Do not run shell/file checks to discover the active profile; those checks may themselves be blocked by the current sandbox.
+- For this local dev install, assume the active profile is `codex-dev` unless the user says they launched Codex with a custom profile. Registry installs should use `codex`.
+- Ask which profile they started with only when the user says they launched Codex with a custom profile.
+- Use a concrete draft name such as `codex-documents`.
+- Do not use `mkdir`, `printf`, `cat`, heredocs, shell redirection, or inline JSON to write the draft.
+- Run the pack helper instead:
+  `$HOME/.codex/bin/nono-draft-profile --name <draft-name> --extends <active-profile> --read <absolute-blocked-path>`
+- Use `--allow` instead of `--read` when read+write directory access is needed.
+- For a single file, use `--read-file` or `--allow-file` instead.
+- If Codex asks for approval to write under `~/.config/nono/profile-drafts/`, explain that this is Codex's local write approval for creating the draft file; it is not an OS sandbox capability grant.
+
+If the blocked path is unclear, ask for the path or run `nono why --path <path> --op read` when a concrete path is available.
+"""
+
+[marketplaces.always-further]
+source_type = "local"
+source = "$HOME/.codex/plugins/marketplaces/always-further"
+
+[plugins."nono@always-further"]
+enabled = true

@@ -1,0 +1,7 @@
+{
+  "id": "nono-hooks",
+  "name": "nono Sandbox Hooks",
+  "version": "1.0.0",
+  "description": "Fires nono sandbox diagnostics for non-Claude model sessions by detecting permission denial patterns in outgoing messages and appending the active capability set and remediation steps.",
+  "configSchema": {}
+}

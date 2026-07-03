@@ -1,0 +1,13 @@
+{
+  "name": "claude-autoresearch",
+  "version": "1.0.0",
+  "description": "Teaches Claude Code how to run autoresearch autonomous ML loops inside a nono security sandbox with GPU access.",
+  "author": {
+    "name": "Kexin Xu",
+    "url": "https://github.com/Kexin-xu-01"
+  },
+  "homepage": "https://github.com/always-further/autoresearch-nono",
+  "repository": "https://github.com/Kexin-xu-01/nono-packs/tree/main/claude-autoresearch",
+  "license": "Apache-2.0",
+  "keywords": ["nono", "sandbox", "autoresearch", "gpu", "ml", "training"]
+}

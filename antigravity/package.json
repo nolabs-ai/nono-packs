@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "name": "antigravity",
+  "version": "0.1.0",
+  "description": "Antigravity CLI (agy) plugin for working inside a nono sandbox. Ships a nono-sandbox skill plus a PostToolUse hook that surfaces sandbox-aware diagnostics on permission failures.",
+  "license": "Apache-2.0",
+  "platforms": [
+    "macos",
+    "linux"
+  ],
+  "min_nono_version": "0.61.0",
+  "artifacts": [
+    {
+      "type": "profile",
+      "path": "policy.json",
+      "install_as": "antigravity",
+      "aliases": ["agy"]
+    },
+    { "type": "plugin", "path": "README.md" },
+    { "type": "plugin", "path": "plugin.json" },
+    { "type": "plugin", "path": "hooks.json" },
+    { "type": "plugin", "path": "bin/nono-hook.sh" },
+    { "type": "plugin", "path": "bin/denial.txt" },
+    { "type": "plugin", "path": "skills/nono-sandbox/SKILL.md" },
+    { "type": "plugin", "path": "wiring/profile-drafts-dir-marker" },
+    { "type": "plugin", "path": "wiring/import-entry.json" }
+  ],
+  "wiring": [
+    {
+      "type": "write_file",
+      "source": "wiring/profile-drafts-dir-marker",
+      "dest": "$HOME/.config/nono/profile-drafts/.nono-antigravity-pack-marker"
+    },
+    {
+      "type": "write_file",
+      "source": "plugin.json",
+      "dest": "$HOME/.gemini/config/plugins/nono/plugin.json"
+    },
+    {
+      "type": "write_file",
+      "source": "hooks.json",
+      "dest": "$HOME/.gemini/config/plugins/nono/hooks.json"
+    },
+    {
+      "type": "write_file",
+      "source": "bin/nono-hook.sh",
+      "dest": "$HOME/.gemini/config/plugins/nono/bin/nono-hook.sh"
+    },
+    {
+      "type": "write_file",
+      "source": "bin/denial.txt",
+      "dest": "$HOME/.gemini/config/plugins/nono/bin/denial.txt"
+    },
+    {
+      "type": "write_file",
+      "source": "skills/nono-sandbox/SKILL.md",
+      "dest": "$HOME/.gemini/config/plugins/nono/skills/nono-sandbox/SKILL.md"
+    },
+    {
+      "type": "json_array_append",
+      "file": "$HOME/.gemini/config/import_manifest.json",
+      "path": "imports",
+      "patch_entries": "wiring/import-entry.json",
+      "key_field": "name"
+    },
+    {
+      "type": "symlink",
+      "link": "$HOME/.agents/skills/nono-sandbox",
+      "target": "$PACK_DIR/skills/nono-sandbox"
+    }
+  ]
+}

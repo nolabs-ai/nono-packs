@@ -1,0 +1,83 @@
+{
+  "extends": "default",
+  "meta": {
+    "name": "goose",
+    "version": "1.0.0",
+    "description": "Goose CLI agent (registry-managed)",
+    "author": "always-further"
+  },
+  "groups": {
+    "include": [
+      { "name": "user_caches_macos", "when": "macos" },
+      { "name": "user_caches_linux", "when": "linux" },
+      "node_runtime",
+      "rust_runtime",
+      "python_runtime",
+      { "name": "linux_sysfs_read", "when": "linux" },
+      "nix_runtime",
+      "git_config",
+      "unlink_protection"
+    ]
+  },
+  "security": {
+    "signal_mode": "isolated",
+    "capability_elevation": false
+  },
+  "filesystem": {
+    "allow": [
+      "$HOME/.agents",
+      "$HOME/.config/goose",
+      "$HOME/.cache/goose",
+      "$HOME/.local/share/goose",
+      "$HOME/.local/state/goose",
+      "$NONO_CONFIG/profile-drafts",
+      "/tmp/goose-$UID",
+      { "path": "$HOME/Library/Application Support/goose", "when": "macos" },
+      { "path": "$HOME/Library/Caches/goose", "when": "macos" },
+      { "path": "$HOME/Library/Logs/goose", "when": "macos" },
+      { "path": "$HOME/Library/Keychains", "when": "macos" }
+    ],
+    "read_file": [
+      { "path": "$HOME/Library/Keychains/login.keychain-db", "when": "macos" }
+    ],
+    "read": [
+      "$NONO_PACKAGES",
+      "$NONO_CONFIG/profiles"
+    ],
+    "bypass_protection": [
+      { "path": "$HOME/Library/Keychains", "when": "macos" },
+      { "path": "$HOME/Library/Keychains/login.keychain-db", "when": "macos" }
+    ]
+  },
+  "network": {
+    "block": false
+  },
+  "workdir": {
+    "access": "readwrite"
+  },
+  "open_urls": {
+    "allow_origins": [
+      "https://api.anthropic.com",
+      "https://api.openai.com",
+      "https://auth.openai.com",
+      "https://generativelanguage.googleapis.com",
+      "https://openrouter.ai",
+      "https://console.groq.com",
+      "https://api.mistral.ai"
+    ],
+    "allow_localhost": true
+  },
+  "allow_launch_services": true,
+  "undo": {
+    "exclude_patterns": [
+      "node_modules",
+      ".next",
+      "__pycache__",
+      "target"
+    ],
+    "exclude_globs": [
+      "*.tmp.[0-9]*.[0-9]*"
+    ]
+  },
+  "interactive": true
+}

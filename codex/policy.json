@@ -1,0 +1,50 @@
+{
+  "extends": "default",
+  "meta": {
+    "name": "codex",
+    "version": "1.0.0",
+    "description": "OpenAI Codex CLI agent (registry-managed)",
+    "author": "always-further"
+  },
+  "groups": {
+    "include": [
+      { "name": "codex_macos", "when": "macos" },
+      { "name": "user_caches_macos", "when": "macos" },
+      { "name": "user_caches_linux", "when": "linux" },
+      "node_runtime",
+      "rust_runtime",
+      "python_runtime",
+      { "name": "linux_sysfs_read", "when": "linux" },
+      "nix_runtime",
+      "git_config",
+      "unlink_protection"
+    ]
+  },
+  "security": {
+    "signal_mode": "isolated",
+    "capability_elevation": false
+  },
+  "filesystem": {
+    "allow": [
+      "$HOME/.codex",
+      "$HOME/.agents",
+      "$NONO_CONFIG/profile-drafts"
+    ],
+    "read": [
+      "$NONO_PACKAGES",
+      "$NONO_CONFIG/profiles"
+    ]
+  },
+  "network": { "block": false },
+  "workdir": { "access": "readwrite" },
+  "open_urls": {
+    "allow_origins": ["https://auth.openai.com"],
+    "allow_localhost": true
+  },
+  "allow_launch_services": true,
+  "undo": {
+    "exclude_patterns": ["node_modules", ".next", "__pycache__", "target"],
+    "exclude_globs": ["*.tmp.[0-9]*.[0-9]*"]
+  },
+  "interactive": true
+}

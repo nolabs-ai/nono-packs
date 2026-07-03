@@ -1,0 +1,3 @@
+name: nono-sandbox
+version: "1.2.0"
+description: nono sandbox diagnostics, audit metadata, bundled skill provenance, and proxy TLS status for Hermes Agent

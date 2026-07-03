@@ -1,0 +1,10 @@
+{
+  "Kexin-xu-01": {
+    "source": {
+      "source": "directory",
+      "path": "$HOME/.claude/plugins/marketplaces/Kexin-xu-01"
+    },
+    "installLocation": "$HOME/.claude/plugins/marketplaces/Kexin-xu-01",
+    "lastUpdated": "$NOW"
+  }
+}

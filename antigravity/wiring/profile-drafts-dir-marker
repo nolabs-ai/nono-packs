@@ -1,0 +1,5 @@
+nono antigravity pack marker
+
+This file is installed to ensure ~/.config/nono/profile-drafts exists.
+Sandboxed agents may write draft profile JSON files in that directory, but
+must not write directly to ~/.config/nono/profiles.

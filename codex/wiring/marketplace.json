@@ -1,0 +1,20 @@
+{
+  "name": "always-further",
+  "interface": {
+    "displayName": "always-further (nono)"
+  },
+  "plugins": [
+    {
+      "name": "nono",
+      "source": {
+        "source": "local",
+        "path": "./plugins/nono"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Security"
+    }
+  ]
+}

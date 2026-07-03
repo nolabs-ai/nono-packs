@@ -1,0 +1,10 @@
+[
+    {
+        "name": "nono",
+        "marketplace": "$NS",
+        "version": "1.0.1",
+        "installed_at": "$NOW",
+        "enabled": true,
+        "cache_path": "$HOME/.copilot/installed-plugins/$NS/nono"
+    }
+]

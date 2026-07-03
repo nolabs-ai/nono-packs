@@ -1,0 +1,58 @@
+name: Publish claude pack
+on:
+  push:
+    tags: ["claude-v*"]
+  workflow_dispatch:
+
+# Inlined (rather than calling a reusable _publish.yml) so the OIDC
+# `job_workflow_ref` claim is this workflow's path, matching the
+# trusted-publisher entry exactly. See docs/cli/features/package-publishing.mdx
+# for the design discussion.
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Read version from package.json
+        id: version
+        run: |
+          set -euo pipefail
+          VERSION=$(jq -r '.version' claude/package.json)
+          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+            echo "ERROR: claude/package.json is missing a 'version' field"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build files list from package.json
+        id: files
+        run: |
+          set -euo pipefail
+          # Always include the manifest itself; conditionally include
+          # README.md if present. Everything else comes from
+          # `artifacts[].path` so the manifest is the source of truth.
+          {
+            echo "package.json"
+            [ -f "claude/README.md" ] && echo "README.md"
+            jq -r '.artifacts[].path' "claude/package.json"
+          } | sort -u > /tmp/files.txt
+          {
+            echo "files<<EOF"
+            cat /tmp/files.txt
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: always-further/agent-sign@c9426f1a00f823dd53e7b9068d910a68b43e49e9 # v0.0.11
+        with:
+          publish: "true"
+          package-name: claude
+          package-namespace: always-further
+          package-version: ${{ steps.version.outputs.version }}
+          package-path: claude
+          registry-url: https://registry.nono.sh/api/v1
+          files: ${{ steps.files.outputs.files }}

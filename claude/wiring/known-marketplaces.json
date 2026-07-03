@@ -1,0 +1,10 @@
+{
+  "always-further": {
+    "source": {
+      "source": "directory",
+      "path": "$HOME/.claude/plugins/marketplaces/always-further"
+    },
+    "installLocation": "$HOME/.claude/plugins/marketplaces/always-further",
+    "lastUpdated": "$NOW"
+  }
+}

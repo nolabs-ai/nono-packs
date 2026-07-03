@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "name": "autoresearch",
+  "description": "nono profile and Claude Code plugin for running autoresearch autonomous ML loops. GPU-enabled sandbox profile for A100/CUDA workloads with IBD, TCGA, and climbmix corpora.",
+  "license": "Apache-2.0",
+  "platforms": ["linux"],
+  "min_nono_version": "0.44.0",
+  "artifacts": [
+    { "type": "profile", "path": "policy.json", "install_as": "claude-code-autoresearch" },
+    { "type": "plugin", "path": ".claude-plugin/plugin.json" },
+    { "type": "plugin", "path": "hooks/hooks.json" },
+    { "type": "plugin", "path": "bin/nono-hook.sh" },
+    { "type": "plugin", "path": "bin/nono-hook-bash.sh" },
+    { "type": "plugin", "path": "skills/autoresearch/SKILL.md" },
+    { "type": "plugin", "path": "assets/logo.png" },
+    { "type": "plugin", "path": "wiring/marketplace.json" },
+    { "type": "plugin", "path": "wiring/known-marketplaces.json" },
+    { "type": "plugin", "path": "wiring/installed-plugin.json" },
+    { "type": "plugin", "path": "wiring/enabled-plugin.json" }
+  ],
+  "wiring": [
+    { "type": "symlink", "link": "$HOME/.claude/plugins/marketplaces/$NS/plugins/claude-autoresearch", "target": "$PACK_DIR" },
+    { "type": "write_file", "source": "wiring/marketplace.json", "dest": "$HOME/.claude/plugins/marketplaces/$NS/.claude-plugin/marketplace.json" },
+    { "type": "symlink", "link": "$HOME/.claude/plugins/cache/$NS/claude-autoresearch/1.0.0", "target": "$PACK_DIR" },
+    { "type": "json_merge", "file": "$HOME/.claude/plugins/known_marketplaces.json", "patch": "wiring/known-marketplaces.json" },
+    { "type": "json_merge", "file": "$HOME/.claude/plugins/installed_plugins.json", "patch": "wiring/installed-plugin.json" },
+    { "type": "json_merge", "file": "$HOME/.claude/settings.json", "patch": "wiring/enabled-plugin.json" }
+  ]
+}

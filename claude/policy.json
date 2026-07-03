@@ -1,0 +1,72 @@
+{
+  "extends": "default",
+  "meta": {
+    "name": "claude",
+    "version": "1.0.0",
+    "description": "Anthropic Claude Code CLI agent (registry-managed)",
+    "author": "always-further"
+  },
+  "groups": {
+    "include": [
+      { "name": "claude_code_macos", "when": "macos" },
+      { "name": "claude_code_linux", "when": "linux" },
+      { "name": "user_caches_macos", "when": "macos" },
+      { "name": "claude_cache_linux", "when": "linux" },
+      "node_runtime",
+      "rust_runtime",
+      "python_runtime",
+      { "name": "vscode_macos", "when": "macos" },
+      { "name": "vscode_linux", "when": "linux" },
+      { "name": "linux_sysfs_read", "when": "linux" },
+      "nix_runtime",
+      "git_config",
+      "unlink_protection"
+    ]
+  },
+  "security": {
+    "signal_mode": "isolated",
+    "capability_elevation": false
+  },
+  "filesystem": {
+    "allow": [
+      "$HOME/.claude",
+      "$HOME/.local/state/claude/locks",
+      "$HOME/.cache/claude",
+      "$NONO_CONFIG/profile-drafts",
+      "/tmp/claude-$UID",
+      { "path": "$HOME/Library/Keychains", "when": "macos" }
+    ],
+    "read": [
+      "$NONO_PACKAGES",
+      "$NONO_CONFIG/profiles"
+    ],
+    "allow_file": [
+      "$HOME/.claude.json",
+      "$HOME/.claude.json.lock",
+      "$HOME/.claude.lock"
+    ],
+    "bypass_protection": [
+      { "path": "$HOME/Library/Keychains", "when": "macos" }
+    ]
+  },
+  "network": { "block": false },
+  "workdir": { "access": "readwrite" },
+  "open_urls": {
+    "allow_origins": [
+      "https://claude.ai",
+      "https://claude.com",
+      "https://api.anthropic.com",
+      "https://platform.claude.com"
+    ],
+    "allow_localhost": true
+  },
+  "diagnostics": {
+    "suppress_system_services": ["forbidden-exec-sugid"]
+  },
+  "allow_launch_services": true,
+  "undo": {
+    "exclude_patterns": ["node_modules", ".next", "__pycache__", "target"],
+    "exclude_globs": ["*.tmp.[0-9]*.[0-9]*"]
+  },
+  "interactive": true
+}

@@ -1,0 +1,20 @@
+[NONO SANDBOX - PERMISSION DENIED]
+
+This is a nono sandbox denial, not macOS TCC or a Unix permissions issue.
+
+Allowed paths:
+__CAPS__
+Network: __NET__
+
+DO NOT ask the user for permission. Take these steps in order, every time:
+
+1. Run `nono why --path <blocked-path> --op read` immediately. Include its output verbatim in your reply so the user sees the diagnosis.
+2. Then present the user with these two options as their NEXT decision point:
+
+   Option A (quick fix): exit and restart with the path allowed:
+     nono run --allow /path/to/needed -- copilot
+
+   Option B (persistent fix): write a nono profile. Run `nono profile guide` for the schema (also without asking), then save a profile JSON at ~/.config/nono/profiles/<name>.json. Start sessions with:
+     nono run --profile <name> -- copilot
+
+Step 1 is non-optional and must run before you reply. Do not ask whether to run it.

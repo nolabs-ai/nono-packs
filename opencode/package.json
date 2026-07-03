@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "name": "opencode",
+  "version": "0.0.6",
+  "description": "opencode plugin and matching nono profile. Provides sandbox-aware diagnostics, credential injection, detach/attach support, and a nono-status command when running inside a nono sandbox.",
+  "license": "Apache-2.0",
+  "platforms": [
+    "macos",
+    "linux"
+  ],
+  "min_nono_version": "0.55.0",
+  "keywords": [
+    "opencode",
+    "nono",
+    "sandbox",
+    "security",
+    "capabilities",
+    "credentials"
+  ],
+  "artifacts": [
+    {
+      "type": "profile",
+      "path": "policy.json",
+      "install_as": "opencode"
+    },
+    {
+      "type": "plugin",
+      "path": "README.md"
+    },
+    {
+      "type": "plugin",
+      "path": "plugin/nono-sandbox.ts"
+    },
+    {
+      "type": "plugin",
+      "path": "assets/logo.png"
+    },
+    {
+      "type": "plugin",
+      "path": "skills/nono-sandbox/SKILL.md"
+    },
+    {
+      "type": "plugin",
+      "path": "wiring/profile-drafts-dir-marker"
+    }
+  ],
+  "wiring": [
+    {
+      "type": "write_file",
+      "source": "wiring/profile-drafts-dir-marker",
+      "dest": "$NONO_CONFIG/profile-drafts/.nono-opencode-pack-marker"
+    },
+    {
+      "type": "symlink",
+      "link": "$XDG_CONFIG_HOME/opencode/plugins/nono-sandbox.ts",
+      "target": "$PACK_DIR/plugin/nono-sandbox.ts"
+    },
+    {
+      "type": "symlink",
+      "link": "$XDG_CONFIG_HOME/opencode/skills/nono-sandbox",
+      "target": "$PACK_DIR/skills/nono-sandbox"
+    }
+  ]
+}

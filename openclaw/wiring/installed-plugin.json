@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "plugins": {
+    "nono@always-further": [
+      {
+        "scope": "user",
+        "installPath": "$HOME/.openclaw/plugins/cache/always-further/nono/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "$NOW",
+        "lastUpdated": "$NOW"
+      }
+    ],
+    "nono-hooks@always-further": [
+      {
+        "scope": "user",
+        "installPath": "$HOME/.openclaw/plugins/cache/always-further/nono-hooks/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "$NOW",
+        "lastUpdated": "$NOW"
+      }
+    ]
+  }
+}

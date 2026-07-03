@@ -1,0 +1,49 @@
+name: Test package
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_name:
+        description: Package name to publish.
+        required: true
+        type: string
+      package_path:
+        description: Package directory path. Defaults to package-name.
+        required: false
+        type: string
+      package_version:
+        description: Package version to publish.
+        required: true
+        type: string
+      package_namespace:
+        description: Package namespace to publish under.
+        required: false
+        default: always-further
+        type: string
+      registry_url:
+        description: Test registry API URL.
+        required: false
+        default: https://lukehinds.rat.alwaysfurther.us/api/v1
+        type: string
+
+# Inlined as a workflow (rather than a reusable workflow) so the OIDC
+# `job_workflow_ref` claim is this workflow's path, matching the
+# trusted-publisher entry exactly. See docs/cli/features/package-publishing.mdx
+# for the design discussion.
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - uses: ./.github/actions/build-test-package
+        with:
+          package-name: ${{ inputs.package_name }}
+          package-version: ${{ inputs.package_version }}
+          package-path: ${{ inputs.package_path || inputs.package_name }}
+          package-namespace: ${{ inputs.package_namespace }}
+          registry-url: ${{ inputs.registry_url }}

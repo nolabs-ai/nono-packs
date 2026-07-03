@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "name": "goose",
+  "version": "0.1.0",
+  "description": "Goose CLI profile and Open Plugin for working inside a nono sandbox. Ships sandbox-aware hooks and a Goose-native skill.",
+  "license": "Apache-2.0",
+  "platforms": [
+    "macos",
+    "linux"
+  ],
+  "min_nono_version": "0.61.0",
+  "artifacts": [
+    {
+      "type": "profile",
+      "path": "policy.json",
+      "install_as": "goose"
+    },
+    {
+      "type": "plugin",
+      "path": "README.md"
+    },
+    {
+      "type": "plugin",
+      "path": "plugin.json"
+    },
+    {
+      "type": "plugin",
+      "path": "hooks/hooks.json"
+    },
+    {
+      "type": "plugin",
+      "path": "bin/nono-hook.sh"
+    },
+    {
+      "type": "plugin",
+      "path": "skills/nono-sandbox/SKILL.md"
+    },
+    {
+      "type": "plugin",
+      "path": "wiring/profile-drafts-dir-marker"
+    }
+  ],
+  "wiring": [
+    {
+      "type": "write_file",
+      "source": "wiring/profile-drafts-dir-marker",
+      "dest": "$NONO_CONFIG/profile-drafts/.nono-goose-pack-marker"
+    },
+    {
+      "type": "symlink",
+      "link": "$HOME/.agents/plugins/nono",
+      "target": "$PACK_DIR"
+    }
+  ]
+}

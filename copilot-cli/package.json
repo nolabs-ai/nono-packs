@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "name": "copilot-cli",
+  "version": "0.0.4",
+  "description": "GitHub Copilot CLI plugin and matching nono profile. Provides sandbox-aware diagnostics on permission failures via PostToolUseFailure, PostToolUse, and SessionStart hooks.",
+  "license": "Apache-2.0",
+  "platforms": [
+    "macos"
+  ],
+  "min_nono_version": "0.58.0",
+  "artifacts": [
+    {
+      "type": "profile",
+      "path": "profiles/copilot-base.json",
+      "install_as": "copilot-base"
+    },
+    {
+      "type": "profile",
+      "path": "profiles/copilot-gh.json",
+      "install_as": "copilot-cli"
+    },
+    {
+      "type": "profile",
+      "path": "profiles/copilot-proxy.json",
+      "install_as": "copilot-cli-proxy"
+    },
+    {
+      "type": "plugin",
+      "path": "README.md"
+    },
+    {
+      "type": "plugin",
+      "path": "plugin.json"
+    },
+    {
+      "type": "plugin",
+      "path": "hooks/hooks.json"
+    },
+    {
+      "type": "plugin",
+      "path": "bin/nono-hook.sh"
+    },
+    {
+      "type": "plugin",
+      "path": "bin/nono-hook-bash.sh"
+    },
+    {
+      "type": "plugin",
+      "path": "bin/nono-hook-session.sh"
+    },
+    {
+      "type": "plugin",
+      "path": "skills/copilot-sandbox/SKILL.md"
+    },
+    {
+      "type": "plugin",
+      "path": "bin/denial.txt"
+    },
+    {
+      "type": "plugin",
+      "path": "bin/session.txt"
+    },
+    {
+      "type": "plugin",
+      "path": "wiring/marketplace.json"
+    },
+    {
+      "type": "plugin",
+      "path": "wiring/enabled-plugin.json"
+    }
+  ],
+  "wiring": [
+    {
+      "type": "symlink",
+      "link": "$HOME/.copilot/installed-plugins/$NS/nono",
+      "target": "$PACK_DIR"
+    },
+    {
+      "type": "json_merge",
+      "file": "$HOME/.copilot/settings.json",
+      "patch": "wiring/marketplace.json"
+    },
+    {
+      "type": "json_array_append",
+      "file": "$HOME/.copilot/config.json",
+      "path": "extraKnownMarketplaces",
+      "patch_entries": "wiring/enabled-plugin.json",
+      "key_field": "name"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "extends": "default",
+  "meta": {
+    "name": "openclaw",
+    "version": "1.0.0",
+    "description": "OpenClaw AI agent — supports main and multi-agent instances with shared coordination bus",
+    "author": "always-further"
+  },
+  "groups": {
+    "include": [
+      "node_runtime",
+      { "name": "linux_runtime_state", "when": "linux" },
+      { "name": "linux_sysfs_read", "when": "linux" },
+      "git_config"
+    ]
+  },
+  "security": {
+    "signal_mode": "isolated",
+    "ipc_mode": "shared_memory_only"
+  },
+  "filesystem": {
+    "allow": [
+      "$HOME/.openclaw",
+      "$HOME/.openclaw-agent1",
+      "$HOME/.openclaw-agent2",
+      "$HOME/.openclaw-agent3",
+      "$HOME/.config/openclaw",
+      "$NONO_CONFIG/profile-drafts",
+      "$TMPDIR/openclaw-$UID"
+    ],
+    "read": [
+      "$NONO_PACKAGES",
+      "$NONO_CONFIG/profiles"
+    ],
+    "allow_file": [
+      "$HOME/.openclaw.json"
+    ]
+  },
+  "network": { "block": false },
+  "workdir": { "access": "read" },
+  "undo": {
+    "exclude_patterns": ["node_modules", ".next"]
+  },
+  "interactive": false,
+  "unsafe_macos_seatbelt_rules": [
+    "(allow user-preference-read)"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schemas.claude.com/plugin-marketplace.json",
+  "name": "Kexin-xu-01",
+  "description": "nono-managed marketplace for Kexin-xu-01",
+  "owner": { "name": "Kexin-xu-01" },
+  "plugins": [
+    {
+      "name": "claude-autoresearch",
+      "description": "Teaches Claude Code how to run autoresearch autonomous ML loops inside a nono security sandbox with GPU access.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kexin Xu",
+        "url": "https://github.com/Kexin-xu-01"
+      },
+      "source": "./plugins/claude-autoresearch",
+      "category": "security",
+      "strict": false,
+      "homepage": "https://github.com/always-further/autoresearch-nono",
+      "repository": "https://github.com/Kexin-xu-01/nono-packs/tree/main/claude-autoresearch",
+      "license": "Apache-2.0",
+      "keywords": ["nono", "sandbox", "autoresearch", "gpu", "ml", "training"]
+    }
+  ]
+}
