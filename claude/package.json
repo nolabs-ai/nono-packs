@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "claude",
-  "version": "0.0.16",
+  "version": "0.1.0",
   "description": "Claude Code plugin and matching nono profile. Provides sandbox-aware diagnostics on permission failures and ships the claude-code profile via the registry.",
   "license": "Apache-2.0",
   "platforms": [

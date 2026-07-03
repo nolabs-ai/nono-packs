@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "openclaw",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "OpenClaw plugin and matching nono profile. Provides sandbox-aware diagnostics on permission failures and ships the openclaw profile via the registry.",
   "license": "Apache-2.0",
   "platforms": ["macos", "linux"],

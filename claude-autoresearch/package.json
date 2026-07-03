@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "name": "autoresearch",
+  "name": "claude-autoresearch",
+  "version": "0.1.0",
   "description": "nono profile and Claude Code plugin for running autoresearch autonomous ML loops. GPU-enabled sandbox profile for A100/CUDA workloads with IBD, TCGA, and climbmix corpora.",
   "license": "Apache-2.0",
   "platforms": ["linux"],

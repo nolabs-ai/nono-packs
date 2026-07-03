@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "hermes",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "description": "Hermes Agent plugin, skill, and matching nono profile. Provides sandbox-aware diagnostics and safer Hermes defaults when running inside nono.",
   "license": "Apache-2.0",
   "platforms": ["macos", "linux"],

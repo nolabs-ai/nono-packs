@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "pi",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "Pi Coding Agent package and matching nono profile. Provides sandbox-aware diagnostics on permission failures and ships the pi profile via the registry.",
   "license": "Apache-2.0",
   "platforms": ["macos", "linux"],
