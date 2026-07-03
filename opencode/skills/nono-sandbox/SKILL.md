@@ -172,6 +172,6 @@ Path references in this skill use `$XDG_CONFIG_HOME`. If that variable is not se
 ## What you should NOT do
 
 - Do not write the profile yourself unless the user explicitly asks for Option B. Present both options first.
-- Do not edit the pack-installed profile at `$XDG_CONFIG_HOME/nono/packages/always-further/opencode/policy.json` — it is overwritten on every `nono pull`.
+- Do not edit the pack-installed profile at `$XDG_CONFIG_HOME/nono/packages/nolabs-ai/opencode/policy.json` — it is overwritten on every `nono pull`.
 - Do not retry the failing operation in a different way. The sandbox is OS-enforced; alternative paths, endpoints, or commands hit the same boundary.
 - Do not edit registry-managed package files under `$XDG_CONFIG_HOME/nono/packages`; create a profile extension instead.
