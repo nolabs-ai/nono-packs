@@ -11,6 +11,16 @@ This repository is the source for installable packs that extend agent runtimes w
 
 Each top-level directory is an individual pack. Packs are described by a `package.json` manifest and can ship one or more artifacts that are installed into the target agent environment.
 
+## Namespace Migration
+
+This repository was previously published under the `always-further` namespace. All packs are now published under `nolabs-ai`. If you have existing installs referencing `always-further`, re-run `nono pull` with the new namespace:
+
+```bash
+nono pull nolabs-ai/<pack> --force
+```
+
+Local config files under `~/.config/nono/packages/always-further/` can be removed after reinstalling under the new namespace.
+
 ## Repository Layout
 
 Current packs in this repository include:
