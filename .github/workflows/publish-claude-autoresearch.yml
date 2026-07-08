@@ -44,7 +44,7 @@ jobs:
         with:
           publish: "true"
           package-name: claude-autoresearch
-          package-namespace: Kexin-xu-01
+          package-namespace: nolabs-ai
           package-version: ${{ steps.version.outputs.version }}
           package-path: claude-autoresearch
           registry-url: https://registry.nono.sh/api/v1

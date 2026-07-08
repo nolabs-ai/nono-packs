@@ -1,10 +1,10 @@
 {
   "version": 2,
   "plugins": {
-    "claude-autoresearch@Kexin-xu-01": [
+    "claude-autoresearch@nolabs-ai": [
       {
         "scope": "user",
-        "installPath": "$HOME/.claude/plugins/cache/Kexin-xu-01/claude-autoresearch/1.0.0",
+        "installPath": "$HOME/.claude/plugins/cache/nolabs-ai/claude-autoresearch/1.0.0",
         "version": "1.0.0",
         "installedAt": "$NOW",
         "lastUpdated": "$NOW"

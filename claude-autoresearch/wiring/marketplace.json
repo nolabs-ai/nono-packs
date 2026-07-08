@@ -1,8 +1,8 @@
 {
   "$schema": "https://schemas.claude.com/plugin-marketplace.json",
-  "name": "Kexin-xu-01",
-  "description": "nono-managed marketplace for Kexin-xu-01",
-  "owner": { "name": "Kexin-xu-01" },
+  "name": "nolabs-ai",
+  "description": "nono-managed marketplace for nolabs-ai",
+  "owner": { "name": "nolabs-ai" },
   "plugins": [
     {
       "name": "claude-autoresearch",
@@ -16,7 +16,7 @@
       "category": "security",
       "strict": false,
       "homepage": "https://github.com/nolabs-ai/autoresearch-nono",
-      "repository": "https://github.com/Kexin-xu-01/nono-packs/tree/main/claude-autoresearch",
+      "repository": "https://github.com/nolabs-ai/nono-packs/tree/main/claude-autoresearch",
       "license": "Apache-2.0",
       "keywords": ["nono", "sandbox", "autoresearch", "gpu", "ml", "training"]
     }

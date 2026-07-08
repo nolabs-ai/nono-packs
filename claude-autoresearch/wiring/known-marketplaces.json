@@ -1,10 +1,10 @@
 {
-  "Kexin-xu-01": {
+  "nolabs-ai": {
     "source": {
       "source": "directory",
-      "path": "$HOME/.claude/plugins/marketplaces/Kexin-xu-01"
+      "path": "$HOME/.claude/plugins/marketplaces/nolabs-ai"
     },
-    "installLocation": "$HOME/.claude/plugins/marketplaces/Kexin-xu-01",
+    "installLocation": "$HOME/.claude/plugins/marketplaces/nolabs-ai",
     "lastUpdated": "$NOW"
   }
 }
