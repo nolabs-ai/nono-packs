@@ -13,13 +13,18 @@ Each top-level directory is an individual pack. Packs are described by a `packag
 
 ## Namespace Migration
 
-This repository was previously published under the `always-further` namespace. All packs are now published under `nolabs-ai`. If you have existing installs referencing `always-further`, re-run `nono pull` with the new namespace:
+This repository was previously published under the `always-further` namespace. All packs are now published under `nolabs-ai`.
+
+If you have an existing install from `always-further`, you must remove it before pulling from `nolabs-ai`. `nono pull` refuses to overwrite files it did not install (sha256 mismatch), so a direct re-pull will fail with a `write_file: refusing to overwrite` error. The fix is to remove the old pack first:
 
 ```bash
-nono pull nolabs-ai/<pack> --force
+nono remove always-further/<pack>
+nono pull nolabs-ai/<pack>
 ```
 
-Local config files under `~/.config/nono/packages/always-further/` can be removed after reinstalling under the new namespace.
+`nono remove` fully reverses all wiring from the old install (symlinks, written files, JSON array entries), leaving a clean slate for the new namespace to apply its own wiring.
+
+Local config files under `~/.config/nono/packages/always-further/` are also safe to delete after removal.
 
 ## Repository Layout
 
