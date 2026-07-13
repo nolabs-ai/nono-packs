@@ -9,6 +9,7 @@ It installs a sandbox profile, a TypeScript plugin, and a skill that make openco
 The pack provides:
 
 - a sandbox profile (`policy.json`) granting the correct filesystem and network access, with credential injection routes for OpenAI, Anthropic, Gemini, GitHub, and GitLab
+- a `session_hooks.before` hook (`bin/ensure-dirs.sh`) that creates opencode's state directories on the host before the sandbox is applied, so first-run doesn't fail when a directory the profile grants access to doesn't exist yet
 - a TypeScript plugin (`plugin/nono-sandbox.ts`) that injects nono sandbox context at session start, detects denial signatures in tool results, appends capability context and Option A/B remediation guidance, surfaces the network egress allowlist, and registers a `nono-status` command
 - a `nono-sandbox` skill that teaches the correct diagnostic flow for filesystem and network-egress denials, credential route setup, and detach/attach usage
 
@@ -25,6 +26,12 @@ When opencode is running inside a `nono` sandbox the installed plugin:
 - steers the model toward the two valid remediations: `--allow` restart or a persistent profile draft
 
 This prevents common bad guidance such as retrying the same action, suggesting `chmod`, attempting network workarounds, or treating the failure as a macOS TCC issue.
+
+## First-Run Directory Bootstrap
+
+Landlock and Seatbelt can only grant a filesystem rule for a path that already exists. On a first run, a few state/cache/etc. directories don't exist yet, so the sandboxed opencode process fails immediately.
+
+`policy.json` wires `bin/ensure-dirs.sh` as a `session_hooks.before` hook, which nono runs on the host before applying the sandbox to `mkdir -p` them first. Requires nono v0.63.0+ for `$PACK_DIR` expansion in `session_hooks`.
 
 ## Credential Injection
 
