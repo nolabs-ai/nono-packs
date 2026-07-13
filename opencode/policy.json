@@ -32,6 +32,9 @@
       "$HOME/.local/share/opencode",
       "$HOME/.local/share/opentui",
       "$HOME/.local/state/opencode",
+      "$HOME/.claude",
+      "$HOME/.codex",
+      "$HOME/.npm",
       "$NONO_CONFIG/profile-drafts",
       "$TMPDIR"
     ],
