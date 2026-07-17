@@ -7,9 +7,10 @@ const PATH_RE = /(?:~\/|\/)[^\s"'`,;:]+/
 
 type CredentialRoute = {
   upstream: string
-  credential_key: string
-  inject_header: string
+  credential_key?: string
+  inject_header?: string
   env_var?: string
+  aws_auth?: { profile?: string; region?: string; service?: string }
 }
 
 type Caps = {
@@ -59,7 +60,19 @@ function buildCredentialLines(caps: Caps): string {
   return keys
     .map(name => {
       const r = routes[name]
+      if (r.aws_auth) {
+        // Report whether a profile is pinned without echoing its name: this text can be
+        // appended to tool-call results that flow back into the model's context, and a
+        // profile name may be an internal alias the user doesn't want sent to a model provider.
+        const desc = r.aws_auth.profile
+          ? "SigV4 signed via a pinned AWS profile"
+          : "SigV4 signed via default AWS credential chain (supports SSO)"
+        return `  ${name}: ${r.upstream}  [${desc}]`
+      }
       const envVar = r.env_var ?? r.credential_key
+      if (!envVar) {
+        return `  ${name}: ${r.upstream}  [misconfigured — no credential mechanism defined]`
+      }
       const present = Boolean(process.env[envVar])
       return `  ${name}: ${r.upstream}  [${present ? "key present" : "key missing — set " + envVar}]`
     })

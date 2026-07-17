@@ -94,7 +94,102 @@
         "inject_header": "Authorization",
         "credential_format": "Bearer {}",
         "env_var": "GITLAB_TOKEN"
+      },
+      "bedrock_us_east_1": {
+        "upstream": "https://bedrock-runtime.us-east-1.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_us_east_2": {
+        "upstream": "https://bedrock-runtime.us-east-2.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_us_west_2": {
+        "upstream": "https://bedrock-runtime.us-west-2.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_ca_central_1": {
+        "upstream": "https://bedrock-runtime.ca-central-1.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_sa_east_1": {
+        "upstream": "https://bedrock-runtime.sa-east-1.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_eu_west_1": {
+        "upstream": "https://bedrock-runtime.eu-west-1.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_eu_west_2": {
+        "upstream": "https://bedrock-runtime.eu-west-2.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_eu_west_3": {
+        "upstream": "https://bedrock-runtime.eu-west-3.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_eu_central_1": {
+        "upstream": "https://bedrock-runtime.eu-central-1.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_eu_central_2": {
+        "upstream": "https://bedrock-runtime.eu-central-2.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_eu_north_1": {
+        "upstream": "https://bedrock-runtime.eu-north-1.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_eu_south_1": {
+        "upstream": "https://bedrock-runtime.eu-south-1.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_eu_south_2": {
+        "upstream": "https://bedrock-runtime.eu-south-2.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_ap_south_1": {
+        "upstream": "https://bedrock-runtime.ap-south-1.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_ap_south_2": {
+        "upstream": "https://bedrock-runtime.ap-south-2.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_ap_southeast_1": {
+        "upstream": "https://bedrock-runtime.ap-southeast-1.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_ap_southeast_2": {
+        "upstream": "https://bedrock-runtime.ap-southeast-2.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_ap_northeast_1": {
+        "upstream": "https://bedrock-runtime.ap-northeast-1.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_ap_northeast_2": {
+        "upstream": "https://bedrock-runtime.ap-northeast-2.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_ap_northeast_3": {
+        "upstream": "https://bedrock-runtime.ap-northeast-3.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_us_gov_east_1": {
+        "upstream": "https://bedrock-runtime.us-gov-east-1.amazonaws.com",
+        "aws_auth": {}
+      },
+      "bedrock_us_gov_west_1": {
+        "upstream": "https://bedrock-runtime.us-gov-west-1.amazonaws.com",
+        "aws_auth": {}
       }
+    }
+  },
+  "environment": {
+    "deny_vars": ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN", "AWS_PROFILE"],
+    "set_vars": {
+      "AWS_ACCESS_KEY_ID": "nono-phantom-access-key",
+      "AWS_SECRET_ACCESS_KEY": "nono-phantom-secret-key"
     }
   },
   "workdir": {

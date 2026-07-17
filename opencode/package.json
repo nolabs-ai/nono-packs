@@ -1,21 +1,24 @@
 {
   "schema_version": 1,
   "name": "opencode",
-  "version": "0.1.0",
-  "description": "opencode plugin and matching nono profile. Provides sandbox-aware diagnostics, credential injection, detach/attach support, and a nono-status command when running inside a nono sandbox.",
+  "version": "0.2.0",
+  "description": "opencode plugin and matching nono profile. Provides sandbox-aware diagnostics, credential injection (including AWS SigV4/SSO signing), detach/attach support, and a nono-status command when running inside a nono sandbox.",
   "license": "Apache-2.0",
   "platforms": [
     "macos",
     "linux"
   ],
-  "min_nono_version": "0.63.0",
+  "min_nono_version": "0.67.0",
   "keywords": [
     "opencode",
     "nono",
     "sandbox",
     "security",
     "capabilities",
-    "credentials"
+    "credentials",
+    "aws",
+    "bedrock",
+    "sso"
   ],
   "artifacts": [
     {
