@@ -182,11 +182,13 @@ function buildStatusReport(caps: Caps | null): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function appendGuidance(result: any, guidance: string): unknown {
-  if (!result || typeof result !== "object") return result
+function appendGuidance(result: any, guidance: string): void {
+  if (!result || typeof result !== "object") return
   const r = result as Record<string, unknown>
+
   if (typeof r.content === "string") {
-    return { ...r, content: r.content + guidance }
+    r.output += guidance
+    return
   }
   if (Array.isArray(r.content)) {
     const parts = [...r.content]
@@ -201,46 +203,57 @@ function appendGuidance(result: any, guidance: string): unknown {
     } else {
       parts.push({ type: "text", text: guidance })
     }
-    return { ...r, content: parts }
+    r.content = parts
   }
-  return result
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const NonoSandboxPlugin = async (ctx: any) => {
+// eslint-disable-next-line
+export const NonoSandboxPlugin = async () => {
   if (!insideNono()) return {}
 
   const caps = readCaps()
 
-  // Register nono-status command if the context supports it
-  if (ctx && typeof ctx.registerCommand === "function") {
-    ctx.registerCommand("nono-status", {
-      description: "Show nono sandbox status for this opencode session",
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      handler: async (_args: any) => buildStatusReport(readCaps()),
-    })
-  }
-
   return {
     // Inject nono context into the system prompt so the model knows the rules
-    // before the first tool call. Fall back gracefully if opencode's plugin API
-    // doesn't support this field yet.
-    ...(caps ? { system: { inject: buildSystemContext(caps) } } : {}),
+    ...(caps
+      ? {
+          "experimental.chat.system.transform": async (
+            _input: unknown,
+            output: { system: string[] },
+          ) => {
+            output.system.push(buildSystemContext(caps))
+          },
+        }
+      : {}),
 
-    "tool.execute.description": "Internal middleware hook for the nono sandbox interception layer. Do not invoke directly.",
+    // Custom tool nono_status that outputs caps
+    tool: {
+      nono_status: {
+        description: "Show nono sandbox status for this opencode session",
+        args: {},
+        execute: async () => ({
+          title: "nono sandbox status",
+          output: buildStatusReport(readCaps()),
+        }),
+      },
+    },
+
     // Fires after every tool call. When the result contains a denial
     // signature we append capability context and Option A/B remediation.
-    "tool.execute.after": async (input: unknown, result: unknown) => {
-      if (!DENIAL_PATTERN.test(JSON.stringify(result))) return result
+    "tool.execute.after": async (
+      input: { tool: string; sessionID: string; callID: string; args: unknown },
+      result: unknown,
+    ) => {
+      if (!DENIAL_PATTERN.test(JSON.stringify(result))) return
 
       const liveCaps = readCaps()
-      if (!liveCaps) return result
+      if (!liveCaps) return
 
       const inputText = JSON.stringify(input)
       const resultText = JSON.stringify(result)
       const blockedPath = extractPath(inputText) ?? extractPath(resultText)
 
-      return appendGuidance(result, buildGuidance(liveCaps, blockedPath))
+      appendGuidance(result, buildGuidance(liveCaps, blockedPath))
     },
   }
 }
