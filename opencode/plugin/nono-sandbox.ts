@@ -227,24 +227,20 @@ export const NonoSandboxPlugin = async (ctx: any) => {
     // doesn't support this field yet.
     ...(caps ? { system: { inject: buildSystemContext(caps) } } : {}),
 
-    tool: {
-      execute: {
-        description: "Internal middleware hook for the nono sandbox interception layer. Do not invoke directly.",
-        // Fires after every tool call. When the result contains a denial
-        // signature we append capability context and Option A/B remediation.
-        after: async (input: unknown, result: unknown) => {
-          if (!DENIAL_PATTERN.test(JSON.stringify(result))) return result
+    "tool.execute.description": "Internal middleware hook for the nono sandbox interception layer. Do not invoke directly.",
+    // Fires after every tool call. When the result contains a denial
+    // signature we append capability context and Option A/B remediation.
+    "tool.execute.after": async (input: unknown, result: unknown) => {
+      if (!DENIAL_PATTERN.test(JSON.stringify(result))) return result
 
-          const liveCaps = readCaps()
-          if (!liveCaps) return result
+      const liveCaps = readCaps()
+      if (!liveCaps) return result
 
-          const inputText = JSON.stringify(input)
-          const resultText = JSON.stringify(result)
-          const blockedPath = extractPath(inputText) ?? extractPath(resultText)
+      const inputText = JSON.stringify(input)
+      const resultText = JSON.stringify(result)
+      const blockedPath = extractPath(inputText) ?? extractPath(resultText)
 
-          return appendGuidance(result, buildGuidance(liveCaps, blockedPath))
-        },
-      },
+      return appendGuidance(result, buildGuidance(liveCaps, blockedPath))
     },
   }
 }
