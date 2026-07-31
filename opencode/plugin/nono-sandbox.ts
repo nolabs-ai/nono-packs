@@ -5,12 +5,24 @@ const DENIAL_PATTERN =
 
 const PATH_RE = /(?:~\/|\/)[^\s"'`,;:]+/
 
-type CredentialRoute = {
+// Static routes (openai, anthropic, gemini, github, gitlab) always carry
+// both credential_key and inject_header.
+// aws_auth routes (bedrock_<region>) carry neither — nono resolves and signs with real
+// AWS credentials instead of injecting a stored key. The two shapes are mutually
+// exclusive on every route this pack defines.
+type StaticCredentialRoute = {
   upstream: string
   credential_key: string
   inject_header: string
   env_var?: string
 }
+
+type AwsAuthCredentialRoute = {
+  upstream: string
+  aws_auth: { profile?: string; region?: string; service?: string }
+}
+
+type CredentialRoute = StaticCredentialRoute | AwsAuthCredentialRoute
 
 type Caps = {
   fs?: Array<{ path: string; resolved?: string; access: string }>
@@ -55,23 +67,74 @@ function profileDraftsDir(): string {
 function buildCredentialLines(caps: Caps): string {
   const routes = caps.credentials ?? {}
   const keys = Object.keys(routes)
-  if (keys.length === 0) return "  (none enabled — add routes to network.credentials in your profile)"
+  if (keys.length === 0) {
+    // NONO_CAP_FILE never populates `credentials` on nono 0.69.0/0.70.0, even with
+    // custom_credentials active, so this branch always runs. Don't claim "none enabled"
+    // — with bedrock_* active by default that's false. Revisit if nono starts reporting it.
+    return "  (not reported by this nono version — check network.credentials in policy.json for active routes)"
+  }
   return keys
     .map(name => {
+      // NONO_CAP_FILE is parsed from an external file at runtime (readCaps) and isn't
+      // schema-validated against CredentialRoute, so `r` may be null, a primitive, or an
+      // object shaped like neither known route type. Guard before any property access —
+      // the `in` operator throws on null/non-object operands.
       const r = routes[name]
-      const envVar = r.env_var ?? r.credential_key
-      const present = Boolean(process.env[envVar])
-      return `  ${name}: ${r.upstream}  [${present ? "key present" : "key missing — set " + envVar}]`
+      if (r === null || typeof r !== "object") {
+        return `  ${name}: [misconfigured — route entry is not an object]`
+      }
+
+      const hasAwsAuth =
+        "aws_auth" in r && typeof r.aws_auth === "object" && r.aws_auth !== null && !Array.isArray(r.aws_auth)
+      const hasCredentialKey = "credential_key" in r && typeof r.credential_key === "string" && r.credential_key !== ""
+      const upstream = typeof r.upstream === "string" ? r.upstream : "<unknown upstream>"
+
+      if (hasAwsAuth && hasCredentialKey) {
+        // The two route shapes are mutually exclusive by design (see the type comment
+        // above). A route carrying both is malformed data, not a valid aws_auth route —
+        // report it as invalid rather than silently picking one mechanism over the other.
+        return `  ${name}: ${upstream}  [misconfigured — route defines both aws_auth and credential_key]`
+      }
+
+      if (hasAwsAuth) {
+        // Report whether a profile is pinned without echoing its name: this text can be
+        // appended to tool-call results that flow back into the model's context, and a
+        // profile name may be an internal alias the user doesn't want sent to a model provider.
+        const desc =
+          typeof r.aws_auth.profile === "string" && r.aws_auth.profile !== ""
+            ? "SigV4 signed via a pinned AWS profile"
+            : "SigV4 signed via default AWS credential chain (supports SSO)"
+        return `  ${name}: ${upstream}  [${desc}]`
+      }
+      if (hasCredentialKey) {
+        // env_var must also be a non-empty string — it's used as a process.env lookup key
+        // below, and a malformed non-string value from an unvalidated NONO_CAP_FILE could
+        // otherwise reach that indexing operation.
+        const envVar =
+          typeof r.env_var === "string" && r.env_var !== "" ? r.env_var : r.credential_key
+        const present = Boolean(process.env[envVar])
+        return `  ${name}: ${upstream}  [${present ? "key present" : "key missing — set " + envVar}]`
+      }
+      return `  ${name}: ${upstream}  [misconfigured — no credential mechanism defined]`
     })
     .join("\n")
 }
+
+// This pack activates several bedrock_<region> credential routes by default (see
+// policy.json's network.credentials). On nono < 0.70.0 that alone silently narrows an
+// otherwise-open network policy to only those routes' upstream hosts, while
+// NONO_CAP_FILE still reports an empty allowlist (nolabs-ai/nono#1485, fixed in #1497 /
+// v0.70.0). Without this caveat, buildEgressGuidance/buildStatusReport would tell the
+// model "all outbound network is allowed" on exactly the versions where that's false.
+const STALE_ALLOWLIST_CAVEAT =
+  "Caveat: on nono older than 0.70.0, this pack's active AWS Bedrock credential routes can silently narrow this to only the Bedrock hosts (nolabs-ai/nono#1485, fixed in v0.70.0), even though this report says otherwise. If a non-Bedrock request unexpectedly fails despite this message, run `nono --version` and upgrade before concluding the connection is genuinely blocked."
 
 function buildDomainLines(caps: Caps): string {
   const domains = caps.allowed_domains ?? []
   if (domains.length === 0) {
     return caps.net_blocked
       ? "  (all outbound network blocked)"
-      : "  (no allowlist — all outbound network allowed)"
+      : "  (no allowlist reported — all outbound network should be allowed; " + STALE_ALLOWLIST_CAVEAT + ")"
   }
   return domains.map(d => "  " + d).join("\n")
 }
@@ -82,7 +145,7 @@ function buildEgressGuidance(caps: Caps): string {
     return "All outbound network is blocked. Retries, alternate endpoints, or proxies cannot bypass this — do not attempt workarounds."
   }
   if (domains.length === 0) {
-    return "No host allowlist is in effect; all outbound network is allowed."
+    return "No host allowlist is reported; all outbound network should be allowed. " + STALE_ALLOWLIST_CAVEAT
   }
   return [
     "Network egress is default-deny; only these hosts are reachable. Any other outbound connection fails by design — retries, alternate endpoints, or proxies cannot bypass it, so do not attempt workarounds:",

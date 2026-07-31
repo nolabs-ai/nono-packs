@@ -1,7 +1,7 @@
 ---
 name: nono-sandbox
 description: Diagnose and resolve permission denials when opencode runs inside a nono security sandbox. Use this when a tool call, shell command, or file operation fails with "Operation not permitted", "Permission denied", EACCES, EPERM, landlock, or sandbox-denied errors, or when an outbound network request fails because the host is not on the sandbox allowlist (connection refused, timeout, or proxy/TLS errors).
-version: 1.2.0
+version: 1.3.0
 platforms: [macos, linux]
 ---
 
@@ -116,7 +116,7 @@ Then tell the user to run `nono profile promote <chosen-name>` and start session
 
 The opencode nono profile defines credential routes for common AI providers. nono injects these credentials transparently via its proxy — opencode never sees the raw API key.
 
-Built-in route names: `openai`, `anthropic`, `gemini`, `github`, `gitlab`.
+Built-in route names: `openai`, `anthropic`, `gemini`, `github`, `gitlab`, and one `bedrock_<region>` route per Bedrock-supported AWS Region (e.g. `bedrock_us_east_1`, `bedrock_eu_west_1`) — inspect `network.custom_credentials` in `policy.json`, or run `nono profile show opencode`, for the exact list.
 
 The corresponding keychain accounts (env-var shaped) are:
 - `OPENAI_API_KEY` → injected as `Authorization: Bearer …` to `api.openai.com`
@@ -125,7 +125,9 @@ The corresponding keychain accounts (env-var shaped) are:
 - `GITHUB_TOKEN` → injected as `Authorization: token …` to `api.github.com`
 - `GITLAB_TOKEN` → injected as `Authorization: Bearer …` to `gitlab.com/api`
 
-Routes are defined in the profile but **disabled by default**. To enable one, create an extending profile and add the route name to `network.credentials`:
+`bedrock_<region>` routes are different: they have no keychain entry, and unlike the routes above, they are **active by default** (listed in the base profile's own `network.credentials`, not opt-in). They use AWS SigV4 request signing instead of header injection — nono resolves real AWS credentials (including SSO profiles) from the host's AWS credential chain and re-signs the request. SigV4 signatures are region-pinned, so pick the route matching your Bedrock region by pointing opencode's `amazon-bedrock` provider at that region — no extending profile is needed just to reach Bedrock. The profile denies real `AWS_*` env vars from reaching the sandbox and substitutes phantom placeholders so the AWS SDK inside opencode still attempts the call for nono to intercept and sign.
+
+Routes other than `bedrock_<region>` are defined in the profile but **disabled by default**. To enable one, create an extending profile and add the route name to `network.credentials`:
 
     {
       "extends": "opencode",
@@ -139,7 +141,7 @@ Do not read or write API keys directly from inside the sandbox. Prefer nono phan
 
 nono supports running opencode in a detached session that survives terminal disconnects:
 
-    nono run --profile opencode --detach -- opencode
+    nono run --profile opencode --detached -- opencode
 
 nono prints the session ID on start. Reattach from any terminal:
 

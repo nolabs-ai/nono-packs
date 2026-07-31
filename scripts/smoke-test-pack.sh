@@ -71,4 +71,67 @@ if require_working_sandbox "sandboxed execution"; then
         bash -lc "cd \"$TMPDIR/workdir\" && \"$NONO_BIN_ABS\" run --profile \"$PACK\" --allow-cwd --no-audit -- echo smoke"
 fi
 
+if [[ "$name" == "opencode" ]]; then
+    echo "AWS credential route handling (opencode only)"
+
+    expect_output_contains "profile show $PACK lists a bedrock credential route" "bedrock_" \
+        "$NONO_BIN" profile show "$PACK"
+
+    if require_working_sandbox "AWS credential phantom substitution"; then
+        NONO_BIN_ABS="$(cd "$(dirname "$NONO_BIN")" && pwd)/$(basename "$NONO_BIN")"
+
+        # Sentinel values deliberately avoid AWS's real credential-value shapes (e.g. the
+        # "AKIA" access-key-ID prefix) so they can never be mistaken for a genuine leaked
+        # secret by GitHub's or any other secret scanner watching this repo's CI output.
+        # Capture ONE sandboxed `env` execution and assert everything against that single
+        # output — running one assertion per `nono run` invocation let a crashed/partial
+        # run silently skip coverage for whichever assertion didn't happen to run last.
+        sandboxed_aws_env() {
+            AWS_ACCESS_KEY_ID="NONO-SMOKE-TEST-LEAK-SENTINEL-ACCESS-KEY-ID" \
+            AWS_SECRET_ACCESS_KEY="NONO-SMOKE-TEST-LEAK-SENTINEL-SECRET-KEY" \
+            AWS_ACCESS_KEY="NONO-SMOKE-TEST-LEAK-SENTINEL-LEGACY-ACCESS-KEY" \
+            AWS_SECRET_KEY="NONO-SMOKE-TEST-LEAK-SENTINEL-LEGACY-SECRET-KEY" \
+            AWS_SECURITY_TOKEN="NONO-SMOKE-TEST-LEAK-SENTINEL-SECURITY-TOKEN" \
+            AWS_CREDENTIAL_FILE="/tmp/nono-smoke-test-leak-sentinel-credential-file" \
+            bash -lc "cd \"$TMPDIR/workdir\" && \"$NONO_BIN_ABS\" run --profile \"$PACK\" --allow-cwd --no-audit -- env && echo NONO-SMOKE-TEST-ENV-DUMP-COMPLETE"
+        }
+
+        # The `|| SANDBOXED_ENV_RC=$?` form (rather than a bare `$?` on the next line) is
+        # required under `set -e`: without it, a nonzero exit from the command substitution
+        # aborts the whole script right here instead of letting us record and assert on it.
+        SANDBOXED_ENV_RC=0
+        SANDBOXED_ENV_OUTPUT="$(sandboxed_aws_env 2>&1)" || SANDBOXED_ENV_RC=$?
+
+        if [[ $SANDBOXED_ENV_RC -ne 0 ]] || ! grep -qF -- "NONO-SMOKE-TEST-ENV-DUMP-COMPLETE" <<< "$SANDBOXED_ENV_OUTPUT"; then
+            _fail "sandboxed env dump under $PACK completed successfully" \
+                "command exited $SANDBOXED_ENV_RC or completion marker missing — $(echo "$SANDBOXED_ENV_OUTPUT" | head -3)"
+        else
+            _pass "sandboxed env dump under $PACK completed successfully"
+
+            for leaked_value in \
+                "NONO-SMOKE-TEST-LEAK-SENTINEL-ACCESS-KEY-ID" \
+                "NONO-SMOKE-TEST-LEAK-SENTINEL-SECRET-KEY" \
+                "NONO-SMOKE-TEST-LEAK-SENTINEL-LEGACY-ACCESS-KEY" \
+                "NONO-SMOKE-TEST-LEAK-SENTINEL-LEGACY-SECRET-KEY" \
+                "NONO-SMOKE-TEST-LEAK-SENTINEL-SECURITY-TOKEN" \
+                "/tmp/nono-smoke-test-leak-sentinel-credential-file"
+            do
+                if grep -qF -- "$leaked_value" <<< "$SANDBOXED_ENV_OUTPUT"; then
+                    _fail "sandboxed process under $PACK never sees real value '$leaked_value'" \
+                        "pattern unexpectedly found in output"
+                else
+                    _pass "sandboxed process under $PACK never sees real value '$leaked_value'"
+                fi
+            done
+
+            if grep -qF -- "AWS_ACCESS_KEY_ID=nono-phantom-access-key" <<< "$SANDBOXED_ENV_OUTPUT"; then
+                _pass "sandboxed process under $PACK sees the phantom AWS_ACCESS_KEY_ID instead"
+            else
+                _fail "sandboxed process under $PACK sees the phantom AWS_ACCESS_KEY_ID instead" \
+                    "phantom value not found in output"
+            fi
+        fi
+    fi
+fi
+
 print_summary
