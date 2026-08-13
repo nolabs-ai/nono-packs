@@ -109,8 +109,21 @@ ENTRY=$(jq -n \
 
 PACK_KEY="$NAMESPACE/$PACK_NAME"
 tmp=$(mktemp)
+# Merge (rather than replace) the pack's lockfile entry: a prior real `nono pull` of this
+# same pack may have recorded a `provenance`/signer-identity field this script never writes
+# (it deliberately bypasses the registry, so it has none to write). A plain replace would
+# silently destroy that field on every local re-install. This does not make a locally-built
+# pack pass nono's package verification on its own — that still requires a genuine Sigstore
+# bundle matching the installed files — it only avoids gratuitously erasing pre-existing
+# lockfile metadata that belongs to a separate, real registry install.
+#
+# Deliberately `+` (shallow merge), not `*` (recursive merge): every field `$entry` defines
+# — including `artifacts` — must be replaced wholesale, not merged key-by-key. `*` would
+# recursively merge the `artifacts` sub-object, letting an artifact removed or renamed since
+# the last install linger in the lockfile under its old (now-stale) sha256. `+` only carries
+# forward fields `$entry` doesn't mention at all, which is exactly `provenance`.
 jq --arg key "$PACK_KEY" --argjson entry "$ENTRY" \
-    '.packages[$key] = $entry' "$LOCKFILE" > "$tmp"
+    '.packages[$key] = ((.packages[$key] // {}) + $entry)' "$LOCKFILE" > "$tmp"
 mv "$tmp" "$LOCKFILE"
 
 echo "Done. Pack registered as '$PACK_KEY' in $LOCKFILE"

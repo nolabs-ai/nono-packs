@@ -3,8 +3,8 @@
 #
 # Sourced by test_registry_packs.sh. Provides:
 #   verify_nono_binary, setup_test_dir, cleanup_test_dir,
-#   expect_success, expect_output_contains, require_working_sandbox,
-#   print_summary
+#   expect_success, expect_output_contains, expect_output_not_contains,
+#   require_working_sandbox, print_summary
 
 NONO_BIN="${NONO_BIN:-nono}"
 
@@ -57,11 +57,34 @@ expect_output_contains() {
     local pattern="$2"
     shift 2
     local output
-    output=$("$@" 2>&1)
-    if echo "$output" | grep -qF "$pattern"; then
+    local rc=0
+    output=$("$@" 2>&1) || rc=$?
+    if [[ $rc -ne 0 ]]; then
+        _fail "$label" "command exited $rc — $(echo "$output" | head -3)"
+        return
+    fi
+    if grep -qF -- "$pattern" <<< "$output"; then
         _pass "$label"
     else
         _fail "$label" "pattern '$pattern' not found in output"
+    fi
+}
+
+expect_output_not_contains() {
+    local label="$1"
+    local pattern="$2"
+    shift 2
+    local output
+    local rc=0
+    output=$("$@" 2>&1) || rc=$?
+    if [[ $rc -ne 0 ]]; then
+        _fail "$label" "command exited $rc — cannot verify pattern absence: $(echo "$output" | head -3)"
+        return
+    fi
+    if grep -qF -- "$pattern" <<< "$output"; then
+        _fail "$label" "pattern unexpectedly found in output"
+    else
+        _pass "$label"
     fi
 }
 

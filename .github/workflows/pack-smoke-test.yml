@@ -34,7 +34,7 @@ jobs:
   detect:
     runs-on: ubuntu-latest
     outputs:
-      packs: ${{ steps.detect.outputs.packs }}
+      include: ${{ steps.detect.outputs.include }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
@@ -57,19 +57,41 @@ jobs:
           while read -r dir; do
             [[ -n "$dir" && -f "$dir/package.json" ]] && PACK_LIST+="$dir"$'\n'
           done <<< "$CHANGED"
-          PACKS=$(echo "$PACK_LIST" | jq -Rsc 'split("\n") | map(select(length > 0))')
 
-          echo "packs=$PACKS" >> "$GITHUB_OUTPUT"
-          echo "Changed packs: $PACKS"
+          # Build a {pack, os} matrix scoped to each pack's own declared `platforms`, so a
+          # single-OS pack (e.g. copilot-cli is macos-only, claude-autoresearch is
+          # linux-only) never gets a smoke-test job on an OS it doesn't claim to support —
+          # such a job would otherwise run every non-sandboxed check for real on a platform
+          # the pack was never validated against (sandboxed-execution checks specifically
+          # are separately skipped everywhere via NONO_SKIP_SANDBOX below; this matrix scope
+          # is about the rest of the smoke suite, not about that skip).
+          INCLUDE="[]"
+          while read -r dir; do
+            [[ -z "$dir" ]] && continue
+            PLATFORMS=$(jq -c '.platforms // ["macos", "linux"]' "$dir/package.json")
+            for platform in $(echo "$PLATFORMS" | jq -r '.[]'); do
+              case "$platform" in
+                macos) OS="macos-latest" ;;
+                linux) OS="ubuntu-latest" ;;
+                *)
+                  echo "Unknown platform '$platform' in $dir/package.json — fix the manifest" >&2
+                  exit 1
+                  ;;
+              esac
+              INCLUDE=$(echo "$INCLUDE" | jq -c --arg pack "$dir" --arg os "$OS" '. + [{"pack": $pack, "os": $os}]')
+            done
+          done <<< "$PACK_LIST"
+
+          echo "include=$INCLUDE" >> "$GITHUB_OUTPUT"
+          echo "Matrix include: $INCLUDE"
 
   smoke:
     needs: detect
-    if: needs.detect.outputs.packs != '[]' && needs.detect.outputs.packs != ''
+    if: needs.detect.outputs.include != '[]' && needs.detect.outputs.include != ''
     strategy:
       fail-fast: false
       matrix:
-        pack: ${{ fromJson(needs.detect.outputs.packs) }}
-        os: [ubuntu-latest, macos-latest]
+        include: ${{ fromJson(needs.detect.outputs.include) }}
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -112,6 +134,25 @@ jobs:
 
       - name: Run smoke tests
         env:
+          # `install-pack-local.sh` bypasses the registry entirely (by design, for local/CI
+          # testing) and writes lockfile entries with no signer identity / provenance. `nono
+          # run --profile <namespace>/<pack>` categorically refuses to start a sandboxed
+          # process against such an entry ("Package verification failed ... no signer
+          # identity in the lockfile"), independent of --trust-override or any other run-time
+          # flag found so far. Confirmed directly against nono 0.70.0: every sandboxed-
+          # execution assertion in scripts/smoke-test-pack.sh fails this way for every pack
+          # once this skip is removed. The root cause is CI's entire sandboxed-execution path
+          # being structurally incompatible with how packs get installed for testing here —
+          # but do not read that as "the credential-leak coverage gap is therefore not real":
+          # with this skip in place, the AWS credential-leak assertions in
+          # scripts/smoke-test-pack.sh get ZERO automated coverage in CI. They are verified
+          # correct only locally/manually (see PR discussion / session notes), with no CI
+          # enforcement until this is resolved. Re-enabling this requires either a nono CLI
+          # mechanism to accept sideloaded/unsigned packs at run time, or install-pack-local.sh
+          # writing whatever lockfile shape nono's package verification actually requires
+          # (unconfirmed — do not guess at that shape without checking against nono's own
+          # source/docs first; as of nono 0.70.0 there is no such shape — see nolabs-ai/nono
+          # issues #1188 and #1190, unmerged, which require a compile-time feature flag).
           NONO_SKIP_SANDBOX: "1"
         run: |
           bash scripts/smoke-test-pack.sh "always-further/${{ matrix.pack }}"
