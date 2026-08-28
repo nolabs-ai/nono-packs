@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
   "name": "claude",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Claude Code plugin and matching nono profile. Provides sandbox-aware diagnostics on permission failures and ships the claude-code profile via the registry.",
   "license": "Apache-2.0",
   "platforms": [
     "macos",
     "linux"
   ],
-  "min_nono_version": "0.61.0",
+  "min_nono_version": "0.63.0",
   "artifacts": [
     {
       "type": "profile",
@@ -37,6 +37,10 @@
     {
       "type": "plugin",
       "path": "bin/nono-hook-bash.sh"
+    },
+    {
+      "type": "plugin",
+      "path": "bin/ensure-dirs.sh"
     },
     {
       "type": "plugin",

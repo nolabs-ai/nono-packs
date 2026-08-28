@@ -2,7 +2,7 @@
   "extends": "default",
   "meta": {
     "name": "claude",
-    "version": "1.0.0",
+    "version": "0.2.0",
     "description": "Anthropic Claude Code CLI agent (registry-managed)",
     "author": "nolabs-ai"
   },
@@ -47,10 +47,19 @@
     ],
     "bypass_protection": [
       { "path": "$HOME/Library/Keychains", "when": "macos" }
+    ],
+    "unix_socket_dir_bind": [
+      { "path": "$XDG_RUNTIME_DIR/cc-socks", "when": "linux" }
     ]
   },
   "network": { "block": false },
   "workdir": { "access": "readwrite" },
+  "session_hooks": {
+    "before": {
+      "script": "$PACK_DIR/bin/ensure-dirs.sh",
+      "timeout_secs": 10
+    }
+  },
   "open_urls": {
     "allow_origins": [
       "https://claude.ai",
