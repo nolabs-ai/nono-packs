@@ -47,10 +47,19 @@
     ],
     "bypass_protection": [
       { "path": "$HOME/Library/Keychains", "when": "macos" }
+    ],
+    "unix_socket_dir_bind": [
+      { "path": "$XDG_RUNTIME_DIR/cc-socks", "when": "linux" }
     ]
   },
   "network": { "block": false },
   "workdir": { "access": "readwrite" },
+  "session_hooks": {
+    "before": {
+      "script": "$PACK_DIR/bin/ensure-dirs.sh",
+      "timeout_secs": 10
+    }
+  },
   "open_urls": {
     "allow_origins": [
       "https://claude.ai",
