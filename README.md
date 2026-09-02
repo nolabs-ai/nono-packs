@@ -33,6 +33,7 @@ Current packs in this repository include:
 - [`claude`](./claude): Claude Code integration for working inside the `nono` sandbox
 - [`claude-autoresearch`](./claude-autoresearch): GPU-enabled profile and plugin for running [autoresearch](https://github.com/Kexin-xu-01/autoresearch-nono) autonomous ML loops inside the `nono` sandbox — A100/CUDA workloads with kernel-level enforcement inherited by training subprocesses
 - [`codex`](./codex): Codex integration for working inside the `nono` sandbox
+- [`deepseek`](./deepseek): DeepSeek Harness (`dsh`) CLI agent profile and skill for working inside the `nono` sandbox
 - [`goose`](./goose): Goose CLI profile and Open Plugin for working inside the `nono` sandbox
 - [`kimchi`](./kimchi): Kimchi Coding Agent package and profile for working inside the `nono` sandbox
 - [`omp`](./omp): Oh My Pi coding harness plugin and profile for working inside the `nono` sandbox
