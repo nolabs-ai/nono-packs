@@ -117,3 +117,17 @@ jobs:
           NONO_SKIP_SANDBOX: "1"
         run: |
           bash scripts/smoke-test-pack.sh "always-further/${{ matrix.pack }}"
+
+  smoke-test-result:
+    name: Pack smoke test result
+    needs: [detect, smoke]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check smoke test outcome
+        run: |
+          if [[ "${{ needs.smoke.result }}" == "failure" || "${{ needs.smoke.result }}" == "cancelled" ]]; then
+            echo "One or more pack smoke tests failed."
+            exit 1
+          fi
+          echo "All pack smoke tests passed (or no packs changed)."
