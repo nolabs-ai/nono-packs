@@ -10,6 +10,7 @@
   "artifacts": [
     { "type": "profile", "path": "policy.json", "install_as": "deepseek" },
     { "type": "plugin", "path": "README.md" },
+    { "type": "plugin", "path": "assets/logo.png" },
     { "type": "plugin", "path": "skills/nono-sandbox/SKILL.md" },
     { "type": "plugin", "path": "wiring/profile-drafts-dir-marker" }
   ],

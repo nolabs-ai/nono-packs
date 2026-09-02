@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./assets/logo.png" alt="nono deepseek" width="500" />
+</p>
+
 # nono deepseek
 
 Sandbox profile and dsh-native skill for running the [DeepSeek Harness](https://deepseek-harness.github.io/deepseek-harness/) CLI agent (`dsh`) inside a [nono](https://nono.sh) security sandbox.
