@@ -3,7 +3,7 @@ name: nono-sandbox
 description: Diagnose and resolve permission denials when OpenClaw runs inside a nono security sandbox. Use this when a tool call, shell command, or file operation fails with "Operation not permitted", "Permission denied", EACCES, or EPERM — the cause is almost certainly the outer nono sandbox.
 ---
 
-**On any EPERM / EACCES / "Operation not permitted" tool or shell failure:** run `nono why --path <blocked-path> --op read` immediately and include its output verbatim in your reply. Do NOT suggest sudo, chmod, or system permission changes. Then offer the user exactly these two options:
+**On any EPERM / EACCES / "Operation not permitted" tool or shell failure:** run `nono why --self --path <blocked-path> --op read` immediately and include its output verbatim in your reply. Do NOT suggest sudo, chmod, or system permission changes. Then offer the user exactly these two options:
 
 - **Option A (quick fix):** `nono run --allow /path/to/needed -- openclaw`
 - **Option B (persistent fix):** draft a profile to `~/.config/nono/profile-drafts/<name>.json` extending `openclaw`, add the path under `"allow"` or `"read"`, then tell the user to run `nono profile promote <name>` and start sessions with `nono run --profile <name> -- openclaw`
@@ -33,7 +33,7 @@ When you see any of these on a file, shell, or tool failure, it is a nono bounda
 
 Run `nono why` to see exactly why access was denied:
 
-    nono why --path /the/blocked/path --op read
+    nono why --self --path /the/blocked/path --op read
 
 The output names the rule that blocked the path and suggests the minimum grant to allow it.
 

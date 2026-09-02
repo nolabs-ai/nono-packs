@@ -5,7 +5,7 @@ version: 1.2.0
 platforms: [macos, linux]
 ---
 
-**On any EPERM / EACCES / "Operation not permitted" tool or shell failure:** run `nono why --path <blocked-path> --op read` immediately and include its output verbatim in your reply. Do NOT suggest sudo, chmod, or system permission changes. Then offer the user exactly these two options:
+**On any EPERM / EACCES / "Operation not permitted" tool or shell failure:** run `nono why --self --path <blocked-path> --op read` immediately and include its output verbatim in your reply. Do NOT suggest sudo, chmod, or system permission changes. Then offer the user exactly these two options:
 
 - **Option A (quick fix):** `nono run --allow /path/to/needed -- opencode`
 - **Option B (persistent fix):** draft a profile to `$XDG_CONFIG_HOME/nono/profile-drafts/<name>.json` extending `opencode`, add the path under `"allow"` or `"read"`, then tell the user to run `nono profile promote <name>` and start sessions with `nono run --profile <name> -- opencode`
@@ -37,7 +37,7 @@ Network-egress denials look different: a request to a host that is not on the sa
 
 Run `nono why` to see exactly why access was denied:
 
-    nono why --path /the/blocked/path --op read
+    nono why --self --path /the/blocked/path --op read
 
 Use `--op write` for write-only failures and `--op readwrite` when the operation needs both.
 

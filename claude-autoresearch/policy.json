@@ -1,6 +1,6 @@
 {
   "meta": { "name": "claude-code-autoresearch", "version": "1.0.0", "description": "Claude Code + GPU for autoresearch" },
-  "extends": "claude",
+  "extends": "nolabs-ai/claude",
   "allow_gpu": true,
   "filesystem": {
     "allow": ["$HOME/autoresearch-nono", "$HOME/.cache/autoresearch/ibd", "$HOME/.cache/autoresearch/tcga", "$HOME/.cache/autoresearch/climbmix", "$HOME/.cache/torch", "$HOME/.cache/uv", "$HOME/.cache/huggingface", "$HOME/.local/share/uv", "$HOME/.nv", "$HOME/.triton", "/tmp", "/dev/shm", "$HOME/.local/share/claude", "$HOME/.local/state/claude/locks"],

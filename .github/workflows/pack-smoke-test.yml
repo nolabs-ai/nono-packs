@@ -112,7 +112,27 @@ jobs:
       - name: Install pack into nono store
         run: |
           set -euo pipefail
-          bash scripts/install-pack-local.sh "${{ matrix.pack }}"
+
+          # A pack's profile can `extend` another pack's profile by fully
+          # qualified name (e.g. "nolabs-ai/claude"). Install that base pack
+          # first so inheritance resolves — the matrix only installs the one
+          # changed pack otherwise, which leaves cross-pack extends dangling.
+          PACK="${{ matrix.pack }}"
+          PROFILE_PATH=$(jq -r '.artifacts[] | select(.type=="profile") | .path' "$PACK/package.json" | head -1)
+          if [[ -n "$PROFILE_PATH" && -f "$PACK/$PROFILE_PATH" ]]; then
+            EXTENDS=$(jq -r '.extends | if type=="array" then .[] else . end' "$PACK/$PROFILE_PATH" 2>/dev/null || true)
+            while IFS= read -r ext; do
+              [[ -z "$ext" || "$ext" != */* ]] && continue
+              DEP_NS="${ext%%/*}"
+              DEP_PACK="${ext#*/}"
+              if [[ -d "$DEP_PACK" && -f "$DEP_PACK/package.json" ]]; then
+                echo "Installing dependency: $ext"
+                bash scripts/install-pack-local.sh "$DEP_PACK" "$DEP_NS"
+              fi
+            done <<< "$EXTENDS"
+          fi
+
+          bash scripts/install-pack-local.sh "$PACK"
 
       - name: Run smoke tests
         env:

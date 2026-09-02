@@ -34,7 +34,7 @@ This is a nono sandbox denial, **not** macOS TCC, **not** Unix file permissions,
 Run `nono why` to understand exactly why the operation was blocked:
 
 ```bash
-nono why --path /path/that/failed --op read 2>/dev/null
+nono why --self --path /path/that/failed --op read 2>/dev/null
 ```
 
 This tells you:
@@ -80,7 +80,7 @@ The file contains:
 ## Common scenarios
 
 **"I need to read a config file outside the project"**
-Run `nono why --path /path/to/config --op read 2>/dev/null`, then offer the quick fix or a profile.
+Run `nono why --self --path /path/to/config --op read 2>/dev/null`, then offer the quick fix or a profile.
 
 **"I need to install a global package"**
 Global package managers write to system paths. Suggest project-local alternatives (e.g., `npx` instead of global install) or offer to write a profile.
@@ -89,4 +89,4 @@ Global package managers write to system paths. Suggest project-local alternative
 If the profile blocks network access, the user must use a profile that allows it. Offer to write one.
 
 **"I need to access another project directory"**
-Run `nono why --path /path/to/other/project --op readwrite 2>/dev/null`, then offer the quick fix or a profile.
+Run `nono why --self --path /path/to/other/project --op readwrite 2>/dev/null`, then offer the quick fix or a profile.
