@@ -370,8 +370,8 @@ marker_id     = sys.argv[2]
 block_content = sys.argv[3]
 position      = sys.argv[4]
 
-begin_marker = f'# BEGIN nono-pack:{marker_id}'
-end_marker   = f'# END nono-pack:{marker_id}'
+begin_marker = f'# >>> nono:{marker_id} >>>'
+end_marker   = f'# <<< nono:{marker_id} <<<'
 
 try:
     with open(target_path) as f:
@@ -425,8 +425,8 @@ import sys
 target_path = sys.argv[1]
 marker_id   = sys.argv[2]
 
-begin_marker = f'# BEGIN nono-pack:{marker_id}'
-end_marker   = f'# END nono-pack:{marker_id}'
+begin_marker = f'# >>> nono:{marker_id} >>>'
+end_marker   = f'# <<< nono:{marker_id} <<<'
 
 with open(target_path) as f:
     lines = f.readlines()

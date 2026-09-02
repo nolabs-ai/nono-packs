@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Teaches OpenAI Codex how to work inside a nono security sandbox.",
   "author": {
-    "name": "Always Further",
+    "name": "nolabs-ai",
     "url": "https://github.com/nolabs-ai"
   },
   "homepage": "https://nono.sh",

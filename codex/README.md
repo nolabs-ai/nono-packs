@@ -22,9 +22,9 @@ If the pack isn't already installed, nono will prompt to pull it.
 - **`bin/nono-hook-session.sh`** — compatibility no-op for older installs that still have the previous `SessionStart` hook entry.
 - **`skills/nono-sandbox/SKILL.md`** — skill describing how to diagnose and resolve sandbox denials.
 
-## Activating the hooks
+## Activating sandbox guidance
 
-`nono pull nolabs-ai/codex` writes the marketplace registration, the hook entries, and the cache symlink, but leaves your `config.toml` alone — that file often contains user customisations and a clean TOML merge isn't worth the risk of clobbering them. After accepting the install prompt you'll see a one-line reminder if the flag isn't set.
+`nono pull nolabs-ai/codex` writes the marketplace registration and the cache symlink, and merges a marked `nono` block into `~/.codex/config.toml` (`developer_instructions`, plus the marketplace/plugin entries) so Codex knows how to diagnose and remediate nono sandbox denials. The merge is scoped to a marked block, so your other `config.toml` settings are left untouched.
 
 ## Hook noise
 
