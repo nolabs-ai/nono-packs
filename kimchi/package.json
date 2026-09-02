@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "name": "kimchi",
+  "version": "0.1.0",
+  "description": "Kimchi Coding Agent package and matching nono profile. Provides sandbox-aware diagnostics on permission failures and ships the kimchi profile via the registry.",
+  "license": "Apache-2.0",
+  "platforms": ["macos", "linux"],
+  "min_nono_version": "0.55.0",
+  "keywords": ["kimchi-package", "nono", "sandbox", "security", "capabilities"],
+  "pi": {
+    "extensions": ["extensions"]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "artifacts": [
+    { "type": "profile", "path": "policy.json", "install_as": "kimchi" },
+    { "type": "plugin", "path": "README.md" },
+    { "type": "plugin", "path": "extensions/nono-sandbox/index.ts" },
+    { "type": "plugin", "path": "extensions/nono-sandbox/prompts.ts" },
+    { "type": "plugin", "path": "extensions/nono-sandbox/nono-sandbox.md.tpl" },
+    { "type": "plugin", "path": "hooks/before.sh" },
+    { "type": "plugin", "path": "assets/logo.png" },
+    { "type": "plugin", "path": "wiring/packages-entry.json" },
+    { "type": "plugin", "path": "wiring/profile-drafts-dir-marker" }
+  ],
+  "wiring": [
+    {
+      "type": "write_file",
+      "source": "wiring/profile-drafts-dir-marker",
+      "dest": "$NONO_CONFIG/profile-drafts/.nono-kimchi-pack-marker"
+    },
+    {
+      "type": "json_array_append",
+      "file": "$HOME/.config/kimchi/harness/settings.json",
+      "path": "packages",
+      "patch_entries": "wiring/packages-entry.json",
+      "key_field": "source"
+    }
+  ]
+}

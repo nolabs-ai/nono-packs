@@ -1,0 +1,86 @@
+{
+  "extends": "default",
+  "meta": {
+    "name": "kimchi",
+    "version": "1.0.0",
+    "description": "Kimchi Coding Agent profile (registry-managed)",
+    "author": "CastAI"
+  },
+  "groups": {
+    "include": [
+      "git_config",
+      "unlink_protection",
+      { "name": "user_caches_macos", "when": "macos" },
+      { "name": "user_caches_linux", "when": "linux" },
+      { "name": "linux_sysfs_read", "when": "linux" }
+    ]
+  },
+  "security": {
+    "signal_mode": "isolated",
+    "capability_elevation": false
+  },
+  "filesystem": {
+    "allow": [
+      "$HOME/.config/kimchi",
+      "$HOME/.cache/kimchi",
+
+      "$NONO_CONFIG/profile-drafts"
+    ],
+    "read": [
+      "$HOME/.local/share/kimchi",
+
+      "$HOME/.claude/commands",
+      "$HOME/.claude/skills",
+      "$HOME/.claude/settings.json",
+      "$HOME/.claude.json",
+
+      "$HOME/.agents/skills",
+
+      "$NONO_PACKAGES",
+      "$NONO_CONFIG/profiles"
+    ],
+    "bypass_protection": [],
+    "suppress_save_prompt": [
+      "/",
+      "/Users",
+      "$HOME/"
+    ]
+  },
+  "network": {
+    "block": false,
+    "allow_domain": [],
+    "credentials": [],
+    "open_port": [],
+    "listen_port": []
+  },
+  "workdir": {
+    "access": "readwrite"
+  },
+  "open_urls": {
+    "allow_origins": [
+      "https://llm.kimchi.dev",
+      "https://auth.openai.com",
+      "https://claude.ai",
+      "https://github.com"
+    ],
+    "allow_localhost": true
+  },
+  "allow_launch_services": true,
+  "undo": {
+    "exclude_patterns": [
+      "node_modules",
+      ".next",
+      "__pycache__",
+      "target",
+      ".kimchi"
+    ],
+    "exclude_globs": ["*.tmp.[0-9]*.[0-9]*"]
+  },
+  "interactive": true,
+  "session_hooks": {
+    "before": {
+      "script": "$PACK_DIR/hooks/before.sh",
+      "timeout_secs": 10
+    }
+  }
+}

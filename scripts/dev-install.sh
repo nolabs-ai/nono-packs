@@ -577,6 +577,21 @@ read_entries = filesystem.setdefault("read", [])
 if isinstance(read_entries, list) and pack_dir not in read_entries:
     read_entries.append(pack_dir)
 
+# nono only expands $PACK_DIR for store packs (provenance-checked via the
+# lockfile). Dev profiles are user profiles in ~/.config/nono/profiles/, so
+# nono leaves $PACK_DIR unexpanded and rejects the hook script path as
+# non-absolute. Expand it here to the checkout path so local installs work.
+def expand_pack_dir(obj):
+    if isinstance(obj, str):
+        return obj.replace("$PACK_DIR/", pack_dir + "/") if obj.startswith("$PACK_DIR/") else obj
+    if isinstance(obj, list):
+        return [expand_pack_dir(item) for item in obj]
+    if isinstance(obj, dict):
+        return {k: expand_pack_dir(v) for k, v in obj.items()}
+    return obj
+
+profile = expand_pack_dir(profile)
+
 os.makedirs(os.path.dirname(dest_path), exist_ok=True)
 with open(dest_path, "w") as f:
     json.dump(profile, f, indent=2)

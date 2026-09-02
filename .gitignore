@@ -1,3 +1,5 @@
 # macOS Finder metadata, anywhere in the tree.
 .DS_Store
 .claude/
+.idea
+.kimchi/
