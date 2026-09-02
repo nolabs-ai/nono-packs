@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "name": "deepseek",
+  "version": "0.1.0",
+  "description": "Teaches the DeepSeek Harness (dsh) CLI agent how to work inside a nono security sandbox. Ships a matching nono profile and a dsh-native sandbox-awareness skill. Assumes dsh is already installed (e.g. via npx @deepseek-ai/dsh); verified against dsh 0.1.1-rc.2.",
+  "license": "Apache-2.0",
+  "platforms": ["macos", "linux"],
+  "min_nono_version": "0.61.0",
+  "keywords": ["deepseek", "dsh", "nono", "sandbox", "security", "capabilities"],
+  "artifacts": [
+    { "type": "profile", "path": "policy.json", "install_as": "deepseek" },
+    { "type": "plugin", "path": "README.md" },
+    { "type": "plugin", "path": "assets/logo.png" },
+    { "type": "plugin", "path": "skills/nono-sandbox/SKILL.md" },
+    { "type": "plugin", "path": "wiring/profile-drafts-dir-marker" }
+  ],
+  "wiring": [
+    {
+      "type": "write_file",
+      "source": "wiring/profile-drafts-dir-marker",
+      "dest": "$NONO_CONFIG/profile-drafts/.nono-deepseek-pack-marker"
+    },
+    {
+      "type": "write_file",
+      "source": "skills/nono-sandbox/SKILL.md",
+      "dest": "$HOME/.dsh/skills/nono-sandbox/SKILL.md"
+    }
+  ]
+}
