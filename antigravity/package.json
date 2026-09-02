@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "antigravity",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Antigravity CLI (agy) plugin for working inside a nono sandbox. Ships a nono-sandbox skill plus a PostToolUse hook that surfaces sandbox-aware diagnostics on permission failures.",
   "license": "Apache-2.0",
   "platforms": [

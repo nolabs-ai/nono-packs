@@ -92,7 +92,7 @@ nono remove nolabs-ai/opencode
 ## Package Metadata
 
 - Name: `opencode`
-- Version: `0.0.6`
+- Version: `0.1.1`
 - Pack type: `agent`
 - Platforms: `macos`, `linux`
 - License: `Apache-2.0`

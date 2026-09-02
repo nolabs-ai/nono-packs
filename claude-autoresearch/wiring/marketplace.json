@@ -9,8 +9,8 @@
       "description": "Teaches Claude Code how to run autoresearch autonomous ML loops inside a nono security sandbox with GPU access.",
       "version": "1.0.0",
       "author": {
-        "name": "Kexin Xu",
-        "url": "https://github.com/Kexin-xu-01"
+        "name": "nolabs-ai",
+        "url": "https://github.com/nolabs-ai"
       },
       "source": "./plugins/claude-autoresearch",
       "category": "security",

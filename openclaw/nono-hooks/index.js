@@ -54,7 +54,7 @@ module.exports = function register(api) {
       'Network: ' + net,
       '',
       'Next steps (in order):',
-      '1. Run `nono why --path <blocked-path> --op read` immediately.',
+      '1. Run `nono why --self --path <blocked-path> --op read` immediately.',
       '   Include its output verbatim in your reply.',
       '2. Present the user with exactly these two options:',
       '   Option A (quick fix):  nono run --allow /path/to/needed -- openclaw',

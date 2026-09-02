@@ -363,7 +363,7 @@ nono why --self --path /path/to/some/file --op read
 
 ### Agent Profile Expansion and Promotion
 
-When a sandbox denial occurs, the agent can draft profile changes, but it cannot directly edit active profiles under `~/.config/nono/profiles`. This keeps policy changes behind an explicit user promotion step. When the agent drafts a profile change, it writes the proposed profile to `~/.config/nono/drafts/<name>.json`. Review the draft, then promote it to make it active:
+When a sandbox denial occurs, the agent can draft profile changes, but it cannot directly edit active profiles under `~/.config/nono/profiles`. This keeps policy changes behind an explicit user promotion step. When the agent drafts a profile change, it writes the proposed profile to `~/.config/nono/profile-drafts/<name>.json`. Review the draft, then promote it to make it active:
 
 ```bash
 nono profile validate --draft hermes-agent
