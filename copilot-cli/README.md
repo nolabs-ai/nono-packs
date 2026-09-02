@@ -10,7 +10,7 @@
 - Include read-only access to `~/.config/gh`
 - Block all other filesystem paths at the kernel level
 
-The pack ships three profiles: a shared base (`copilot-cli-base`) and two authentication-specific profiles that extend it:
+The pack ships three profiles: a shared base (`nolabs-ai/copilot-base`) and two authentication-specific profiles that extend it:
 
 | Profile | Auth method | Best for |
 |---|---|---|
@@ -31,7 +31,7 @@ Follow the prompts to authenticate with GitHub. The profile reads `~/.config/gh`
 **Step 2 — Run**
 
 ```bash
-nono run --profile copilot-cli -- copilot
+nono run --profile nolabs-ai/copilot-cli -- copilot
 ```
 
 ---
@@ -59,7 +59,7 @@ Omitting the value from the command line causes `security` to prompt for it inte
 **Step 3 — Run**
 
 ```bash
-nono run --profile copilot-cli-proxy -- copilot
+nono run --profile nolabs-ai/copilot-cli-proxy -- copilot
 ```
 ---
 
@@ -69,13 +69,13 @@ nono run --profile copilot-cli-proxy -- copilot
 nono pull nolabs-ai/copilot-cli
 ```
 
-All three profiles are installed automatically. Use `--profile copilot-cli` or `--profile copilot-cli-proxy` to select one at runtime. `copilot-cli-base` can be used directly but has no auth configuration, so it would requires manual login.
+All three profiles are installed automatically. Use `--profile nolabs-ai/copilot-cli` or `--profile nolabs-ai/copilot-cli-proxy` to select one at runtime. `nolabs-ai/copilot-base` can be used directly but has no auth configuration, so it would requires manual login.
 
 ## Included Artifacts
 
 | Artifact | Type | Purpose |
 |---|---|---|
-| `profiles/copilot-base.json` | profile | Shared base profile (`copilot-cli-base`) — extended by both auth profiles |
+| `profiles/copilot-base.json` | profile | Shared base profile (`nolabs-ai/copilot-base`) — extended by both auth profiles |
 | `profiles/copilot-gh.json` | profile | Sandbox profile using `gh` auth (`copilot-cli`) |
 | `profiles/copilot-proxy.json` | profile | Sandbox profile using credential injection (`copilot-cli-proxy`) |
 | `skills/copilot-sandbox/SKILL.md` | instruction | Teaches the agent its sandbox constraints |

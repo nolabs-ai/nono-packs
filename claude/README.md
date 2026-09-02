@@ -8,6 +8,16 @@
 
 It installs a Claude plugin, hook definitions, shell helpers, and a packaged skill that make Claude Code behave correctly when it is running inside a `nono` security sandbox.
 
+## Quick start
+
+```bash
+# Install the pack
+nono pull nolabs-ai/claude
+
+# Run Claude Code inside the sandbox
+nono run --profile nolabs-ai/claude -- claude
+```
+
 ## What It Does
 
 This pack is focused on one problem: when Claude hits a sandbox boundary, it should stop guessing and explain the real fix.

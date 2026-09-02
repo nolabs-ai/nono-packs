@@ -4,7 +4,7 @@
     "name": "omp",
     "version": "1.0.0",
     "description": "Oh My Pi coding harness (registry-managed)",
-    "author": "rlex"
+    "author": "nolabs-ai, rlex, koalajoe23"
   },
   "groups": {
     "include": [
@@ -37,18 +37,19 @@
       "$HOME/.local/share/mise/installs/github-can1357-oh-my-pi/latest/omp",
       "$HOME/.local/bin/omp",
       "$HOME/.agents/skills",
+      "$HOME/.nvm",
+      { "path": "$HOME/Library/Spelling", "when": "macos" },
       "$HOME/.codex/skills",
       "$HOME/.config/opencode/skills",
       "$HOME/.claude/plugins/cache",
       "$HOME/.codex/config.toml",
       "$HOME/.claude/settings.json",
       "$HOME/.claude/plugins/installed_plugins.json",
-      "$HOME/.claude/plugins/cache",
       "$HOME/.claude.json",
       "$HOME/.CFUserTextEncoding"
     ],
     "suppress_save_prompt": [
-      "$NONO_PACKAGES/always-further/omp"
+      "$NONO_PACKAGES/nolabs-ai/omp"
     ]
   },
   "network": {
@@ -77,7 +78,14 @@
         "credential_key": "GOOGLE_API_KEY",
         "inject_header": "x-goog-api-key",
         "credential_format": "{}",
-        "env_var": "GOOGLE_API_KEY"
+        "env_var": "GEMINI_API_KEY"
+      },
+      "opencode": {
+        "upstream": "https://opencode.ai/zen/v1",
+        "credential_key": "OPENCODE_API_KEY",
+        "inject_header": "Authorization",
+        "credential_format": "Bearer {}",
+        "env_var": "OPENCODE_API_KEY"
       },
       "github": {
         "upstream": "https://api.github.com",
@@ -99,7 +107,12 @@
     "access": "readwrite"
   },
   "open_urls": {
-    "allow_origins": [],
+    "allow_origins": [
+      "https://auth.openai.com",
+      "https://claude.ai",
+      "https://github.com",
+      "https://opencode.ai"
+    ],
     "allow_localhost": true
   },
   "allow_launch_services": true,
@@ -113,7 +126,8 @@
       "node_modules",
       ".next",
       "__pycache__",
-      "target"
+      "target",
+      ".omp"
     ],
     "exclude_globs": ["*.tmp.[0-9]*.[0-9]*"]
   },

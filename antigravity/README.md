@@ -84,7 +84,7 @@ The pack ships `policy.json`, the `nono` profile for `agy` (installed as
 `antigravity`, alias `agy`). Launch a sandboxed session with:
 
 ```bash
-nono run --profile antigravity -- agy
+nono run --profile nolabs-ai/antigravity -- agy
 ```
 
 The profile is captured from runtime-discovered `agy` access (config under

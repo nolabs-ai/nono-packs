@@ -56,7 +56,7 @@ Store the corresponding secret in the nono keychain under the env-var-shaped acc
 Run opencode in a detached session that survives terminal disconnects:
 
 ```bash
-nono run --profile opencode --detach -- opencode
+nono run --profile nolabs-ai/opencode --detach -- opencode
 ```
 
 Reattach from any terminal:
@@ -76,7 +76,7 @@ nono pull nolabs-ai/opencode
 Or let nono prompt you on first use:
 
 ```bash
-nono run --profile opencode -- opencode
+nono run --profile nolabs-ai/opencode -- opencode
 ```
 
 ## Activation

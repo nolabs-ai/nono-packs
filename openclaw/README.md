@@ -35,13 +35,13 @@ nono pull nolabs-ai/openclaw
 **Single agent**
 
 ```bash
-nono run --profile openclaw -- openclaw
+nono run --profile nolabs-ai/openclaw -- openclaw
 ```
 
 **Named agent instance**
 
 ```bash
-nono run --profile openclaw --home ~/.openclaw-agent1 -- openclaw
+nono run --profile nolabs-ai/openclaw --home ~/.openclaw-agent1 -- openclaw
 ```
 
 ## Included Artifacts

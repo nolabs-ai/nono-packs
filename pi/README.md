@@ -24,7 +24,7 @@ nono profile init pi --extends nolabs-ai/pi --full
 A custom profile is also where you add credential routes, API keys, tokens, extra filesystem grants, and any other customizations — see the sections below. Its worth running this step, even if you don't think you'll need any custom grants or credentials, just to avoid the grants prompt later. 
 
 ```bash
-nono run --profile pi --allow-cwd -- pi
+nono run --profile nolabs-ai/pi --allow-cwd -- pi
 ```
 
 ### First-run grants prompt
@@ -139,7 +139,7 @@ For the full credential URI ref model (`op://`, `apple-password://`, `file://`, 
 Then run pi with your child profile:
 
 ```bash
-nono run --profile pi -- pi
+nono run --profile nolabs-ai/pi -- pi
 ```
 
 ### Custom providers
@@ -218,7 +218,7 @@ For tighter control you can add `endpoint_rules` — a list of `{"method", "path
 Run pi with your child profile:
 
 ```bash
-nono run --profile pi -- pi
+nono run --profile nolabs-ai/pi -- pi
 ```
 
 ## Audit Logging
@@ -238,13 +238,13 @@ nono audit cleanup                       # remove old sessions
 To disable audit logging for a session, pass `--no-audit`:
 
 ```bash
-nono run --profile pi --no-audit -- pi
+nono run --profile nolabs-ai/pi --no-audit -- pi
 ```
 
 If you want the session log but don't need tamper-evident protection:
 
 ```bash
-nono run --profile pi --no-audit-integrity -- pi
+nono run --profile nolabs-ai/pi --no-audit-integrity -- pi
 ```
 
 If you add secrets-adjacent flags to your pi invocation, you can extend nono's redaction rules so they never appear in the log. Add to `~/.config/nono/config.toml`:
@@ -261,7 +261,7 @@ extra_query_keys = ["sig", "signature"]
 nono can snapshot the filesystem before pi runs and let you selectively restore any files it changed or deleted. This is useful when you want to review or undo an agent session without having to figure out what changed by hand.
 
 ```bash
-nono run --rollback --profile pi  -- pi
+nono run --rollback --profile nolabs-ai/pi  -- pi
 ```
 
 With `--rollback` active, nono takes a baseline snapshot before execution and a final snapshot after. When pi exits, if any files were modified or deleted you get an interactive review showing a per-file diff and a prompt to restore whichever files you want back.
@@ -280,7 +280,7 @@ nono rollback cleanup --older-than 7      # remove sessions older than 7 days
 To suppress the interactive review prompt (for scripting):
 
 ```bash
-nono run --rollback --no-rollback-prompt --profile pi -- pi
+nono run --rollback --no-rollback-prompt --profile nolabs-ai/pi -- pi
 ```
 
 Exclude noisy paths from snapshot tracking in your child profile:
@@ -301,7 +301,7 @@ nono comes with a built-in PTY multiplexer, so you can detach and re-attach to s
 By default, nono runs pi as a child process. This means if you quit pi, any subprocesses it spawned will also be terminated. If you want pi to keep running, but not have it as an active terminal session, use `--detached`:
 
 ```bash
-nono run --profile pi --detached -- pi
+nono run --profile nolabs-ai/pi --detached -- pi
 ```
 
 You can now attach to the running session later to review logs, check status, or run `nono why` queries:

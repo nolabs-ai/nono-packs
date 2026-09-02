@@ -9,14 +9,14 @@ Sandbox profile and Codex plugin for running [OpenAI Codex CLI](https://develope
 Install:
 
 ```
-nono run --profile codex -- codex
+nono run --profile nolabs-ai/codex -- codex
 ```
 
 If the pack isn't already installed, nono will prompt to pull it.
 
 ## What's in the pack
 
-- **`policy.json`** — sandbox profile (loaded as `--profile codex`). Grants `~/.codex`, `~/.agents`, `~/.config/nono/{profiles,packages}` (read-only), the OpenAI auth origin, and runtime groups for Node, Rust, Python, Nix.
+- **`policy.json`** — sandbox profile (loaded as `--profile nolabs-ai/codex`). Grants `~/.codex`, `~/.agents`, `~/.config/nono/{profiles,packages}` (read-only), the OpenAI auth origin, and runtime groups for Node, Rust, Python, Nix.
 - **`.codex-plugin/plugin.json`** — Codex plugin manifest, exposes the `nono-sandbox` skill.
 - **`bin/nono-hook.sh`** — compatibility no-op for older installs that still have the previous `PostToolUse` hook entry.
 - **`bin/nono-hook-session.sh`** — compatibility no-op for older installs that still have the previous `SessionStart` hook entry.

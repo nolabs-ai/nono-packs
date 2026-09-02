@@ -39,7 +39,7 @@ nono profile init hermes --extends nolabs-ai/hermes --full
 **Step 3 — run Hermes:**
 
 ```bash
-nono run --profile hermes --allow-cwd -- hermes
+nono run --profile nolabs-ai/hermes --allow-cwd -- hermes
 ```
 
 A custom profile is also where you add credential routes, extra filesystem grants, and any other customizations — see the sections below.
@@ -253,7 +253,7 @@ For tighter control you can add `endpoint_rules` — a list of `{"method", "path
 Run Hermes with your child profile:
 
 ```bash
-nono run --profile hermes -- hermes
+nono run --profile nolabs-ai/hermes -- hermes
 ```
 
 ## Audit Logging
@@ -273,13 +273,13 @@ nono audit cleanup                       # remove old sessions
 To disable audit logging for a session, pass `--no-audit`:
 
 ```bash
-nono run --profile hermes --no-audit -- hermes
+nono run --profile nolabs-ai/hermes --no-audit -- hermes
 ```
 
 If you want the session log but don't need tamper-evident protection:
 
 ```bash
-nono run --profile hermes --no-audit-integrity -- hermes
+nono run --profile nolabs-ai/hermes --no-audit-integrity -- hermes
 ```
 
 If you add secrets-adjacent flags to your Hermes invocation, you can extend nono's redaction rules so they never appear in the log. Add to `~/.config/nono/config.toml`:
@@ -296,7 +296,7 @@ extra_query_keys = ["sig", "signature"]
 nono can snapshot the filesystem before Hermes runs and let you selectively restore any files it changed or deleted. This is useful when you want to review or undo an agent session without having to figure out what changed by hand.
 
 ```bash
-nono run --rollback --profile hermes  -- hermes
+nono run --rollback --profile nolabs-ai/hermes  -- hermes
 ```
 
 With `--rollback` active, nono takes a baseline snapshot before execution and a final snapshot after. When Hermes exits, if any files were modified or deleted you get an interactive review showing a per-file diff and a prompt to restore whichever files you want back.
@@ -315,7 +315,7 @@ nono rollback cleanup --older-than 7      # remove sessions older than 7 days
 To suppress the interactive review prompt (for scripting):
 
 ```bash
-nono run --rollback --no-rollback-prompt --profile hermes -- hermes
+nono run --rollback --no-rollback-prompt --profile nolabs-ai/hermes -- hermes
 ```
 
 Exclude noisy paths from snapshot tracking in your child profile:
@@ -334,7 +334,7 @@ Exclude noisy paths from snapshot tracking in your child profile:
 By default, nono runs Hermes as a child process. This means if you stop the nono session, you also stop Hermes and any subprocesses it spawned. If you want Hermes to keep running after you exit nono, use `--detached`:
 
 ```bash
-nono run --profile hermes --detached -- hermes
+nono run --profile nolabs-ai/hermes --detached -- hermes
 ```
 
 You can now attach to the running session later to review logs, check status, or run `nono why` queries:
