@@ -2,7 +2,7 @@
   "extends": "default",
   "meta": {
     "name": "claude",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "description": "Anthropic Claude Code CLI agent (registry-managed)",
     "author": "nolabs-ai"
   },

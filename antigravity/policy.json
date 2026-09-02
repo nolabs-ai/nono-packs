@@ -4,7 +4,7 @@
   ],
   "meta": {
     "name": "antigravity",
-    "version": "0.3.1",
+    "version": "1.0.0",
     "description": "Runtime-discovered path additions for agy",
     "author": null
   },
