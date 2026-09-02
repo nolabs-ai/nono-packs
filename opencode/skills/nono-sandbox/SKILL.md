@@ -84,7 +84,7 @@ After drafting, tell the user:
 
 ## Network egress denials
 
-nono routes outbound traffic through a filtering proxy. When `network.block` is false but a host allowlist is set, only allowlisted hosts are reachable and every other connection fails — usually as a connection refused, timeout, or TLS/proxy error rather than an EPERM. `nono-status` lists the reachable hosts under "reachable hosts". Retries, alternate endpoints, proxies, or DNS changes cannot bypass the proxy; it is OS-enforced.
+nono routes outbound traffic through a filtering proxy. When `network.block` is false but a host allowlist is set, only allowlisted hosts are reachable and every other connection fails — usually as a connection refused, timeout, or TLS/proxy error rather than an EPERM. `nono_status` lists the reachable hosts under "reachable hosts". Retries, alternate endpoints, proxies, or DNS changes cannot bypass the proxy; it is OS-enforced.
 
 If a host is genuinely needed, present the same two options as for filesystem denials.
 
@@ -145,7 +145,7 @@ nono prints the session ID on start. Reattach from any terminal:
 
     nono attach <session-id>
 
-The session ID is also available inside the session as `NONO_SESSION_ID`. The installed plugin surfaces it in the `nono-status` command output.
+The session ID is also available inside the session as `NONO_SESSION_ID`. The installed plugin surfaces it in the `nono_status` tool output.
 
 To list active nono sessions:
 
@@ -162,7 +162,7 @@ Detached sessions inherit the same sandbox profile as interactive ones — the s
 - opencode state, sessions, config, and cache live under `~/.opencode`, `$XDG_CONFIG_HOME/opencode`, `$XDG_CACHE_HOME/opencode`, `$XDG_DATA_HOME/opencode`, and `$XDG_STATE_HOME/opencode`. The base profile grants all of these read/write.
 - The plugin at `$XDG_CONFIG_HOME/opencode/plugins/nono-sandbox.ts` is symlinked from the pack store. It updates automatically on `nono pull`.
 - The skill at `$XDG_CONFIG_HOME/opencode/skills/nono-sandbox/` is similarly symlinked.
-- The `nono-status` command (registered by the plugin) shows the active capability set, the network egress allowlist (reachable hosts), enabled credential routes, and the session ID for reattach.
+- The `nono_status` tool (registered by the plugin) shows the active capability set, the network egress allowlist (reachable hosts), enabled credential routes, and the session ID for reattach.
 - Do not add provider secrets to opencode's own config files. Route them through `network.credentials` in the profile instead.
 
 ## Path conventions
