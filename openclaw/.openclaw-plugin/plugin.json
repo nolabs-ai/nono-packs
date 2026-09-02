@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Teaches OpenClaw how to work inside a nono security sandbox. Provides sandbox-aware diagnostics on permission failures and instructions for capability management.",
   "author": {
-    "name": "Always Further",
+    "name": "nolabs-ai",
     "url": "https://github.com/nolabs-ai"
   },
   "homepage": "https://nono.sh",

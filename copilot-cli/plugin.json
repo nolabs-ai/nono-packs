@@ -3,11 +3,11 @@
     "description": "Teaches GitHub Copilot CLI how to work inside a nono security sandbox. Provides sandbox-aware diagnostics on permission failures via PostToolUseFailure, PostToolUse, and SessionStart hooks.",
     "version": "0.1.0",
     "author": {
-        "name": "Always Further",
+        "name": "nolabs-ai",
         "url": "https://github.com/nolabs-ai"
     },
     "homepage": "https://nono.sh",
-    "repository": "https://github.com/nolabs-ai/nono-packs/tree/main/github-copilot",
+    "repository": "https://github.com/nolabs-ai/nono-packs/tree/main/copilot-cli",
     "license": "Apache-2.0",
     "keywords": ["nono", "sandbox", "security", "capabilities", "copilot"],
     "skills": "./skills/",

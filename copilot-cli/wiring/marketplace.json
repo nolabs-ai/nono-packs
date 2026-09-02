@@ -3,7 +3,7 @@
       "nolabs-ai": {      
         "source": {      
           "source": "github",
-          "repo": "$NS/nono-packs-copilot"
+          "repo": "$NS/nono-packs"
         }                                 
       }  
     }  

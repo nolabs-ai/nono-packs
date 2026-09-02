@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/logo.png" alt="nono codex" width="500" />
+  <img src="./assets/logo.png" alt="nono pi" width="500" />
 </p>
 
 

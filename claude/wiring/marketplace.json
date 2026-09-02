@@ -9,7 +9,7 @@
       "description": "Teaches Claude Code how to work inside a nono security sandbox. Provides sandbox-aware diagnostics on permission failures and instructions for capability management.",
       "version": "1.0.0",
       "author": {
-        "name": "Always Further",
+        "name": "nolabs-ai",
         "url": "https://github.com/nolabs-ai"
       },
       "source": "./plugins/nono",

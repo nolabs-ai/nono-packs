@@ -41,7 +41,7 @@ Verified from `nono/crates/nono-cli/src/package.rs` and `nono/crates/nono-cli/sr
 - Valid artifact types: `profile`, `instruction`, `trust_policy`, `groups`, `plugin`
 - Valid wiring directive types: `symlink`, `write_file`, `json_merge`, `json_array_append`, `toml_block`
 - Wiring variables available: `$PACK_DIR`, `$NS`, `$PLUGIN`, `$HOME`, `$XDG_CONFIG_HOME`, `$NOW`
-- `min_nono_version: "0.44.0"` matches `claude` and `codex` packs (wiring system stable from this version)
+- `min_nono_version: "0.58.0"`
 
 ---
 

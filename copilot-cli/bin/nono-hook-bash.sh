@@ -4,7 +4,7 @@
 #
 # Fires on PostToolUse for all tools. Filters to bash tool only, then
 # inspects the tool result for sandbox-denial patterns. Reads context
-# from ../context/denial.txt and injects it so the agent can guide the user.
+# from denial.txt and injects it so the agent can guide the user.
 #
 # Input schema (VS Code compat):
 #   { hook_event_name, tool_name, tool_input, tool_result: { result_type, text_result_for_llm } }

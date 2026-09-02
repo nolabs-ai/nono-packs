@@ -2,7 +2,7 @@
 # nono-hook.sh — GitHub Copilot CLI nono sandbox diagnostics hook
 # Version: 0.1.0
 #
-# Fires on PostToolUseFailure. Reads context from ../context/denial.txt,
+# Fires on PostToolUseFailure. Reads context from denial.txt,
 # substitutes live capability data, and injects it so the agent understands
 # what was blocked and how the user can fix it.
 #
@@ -10,7 +10,7 @@
 # Output schema: { hookSpecificOutput: { hookEventName, additionalContext } }
 # NOTE: output schema needs verification against Copilot CLI hook runtime.
 # See NOTES.md for details.
-NONO_HOOK_DEBUG=1
+NONO_HOOK_DEBUG=0
 LOG_FILE="${NONO_HOOK_LOG:-$HOME/.copilot/nono-hook.log}"
 log() { [ "${NONO_HOOK_DEBUG:-0}" = "1" ] && echo "$(date -Iseconds) [nono-hook] $*" >> "$LOG_FILE"; }
 

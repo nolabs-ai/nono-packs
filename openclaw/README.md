@@ -24,7 +24,7 @@ All sandboxed OpenClaw instances on the same machine share `$TMPDIR/openclaw-$UI
 
 ## Installation
 
-Requires nono ≥ 0.44.0.
+Requires nono ≥ 0.47.0.
 
 ```bash
 nono pull nolabs-ai/openclaw
@@ -77,7 +77,7 @@ The profile:
 - Name: `openclaw`
 - Platforms: `macos`, `linux`
 - License: `Apache-2.0`
-- Min nono version: `0.44.0`
+- Min nono version: `0.47.0`
 
 ## Directory Layout
 

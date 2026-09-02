@@ -3,13 +3,13 @@
 # Version: 0.1.0
 #
 # Brief boundary statement at session start. Reads context from
-# ../context/session.txt and injects it into the session.
+# session.txt and injects it into the session.
 #
 # Input schema (VS Code compat): { hook_event_name, session_id, timestamp, cwd, source }
 # Output schema: { hookSpecificOutput: { hookEventName, additionalContext } }
 # NOTE: output schema needs verification against Copilot CLI hook runtime.
 # See NOTES.md for details.
-NONO_HOOK_DEBUG=-
+NONO_HOOK_DEBUG=0
 LOG_FILE="${NONO_HOOK_LOG:-$HOME/.copilot/nono-hook.log}"
 log() { [ "${NONO_HOOK_DEBUG:-0}" = "1" ] && echo "$(date -Iseconds) [nono-hook-session] $*" >> "$LOG_FILE"; }
 

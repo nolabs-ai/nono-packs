@@ -6,7 +6,7 @@
     "name": "antigravity",
     "version": "1.0.0",
     "description": "Runtime-discovered path additions for agy",
-    "author": null
+    "author": "nolabs-ai"
   },
   "security": {
     "signal_mode": null,
