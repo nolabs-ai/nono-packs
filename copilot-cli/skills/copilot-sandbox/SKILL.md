@@ -43,7 +43,7 @@ Everything else is blocked at the kernel level. There is no escalation path from
 Run `nono why` to see exactly why access was denied:
 
 ```bash
-nono why --path /the/blocked/path --op read
+nono why --self --path /the/blocked/path --op read
 ```
 
 The output names the rule that blocked the path and suggests the minimum grant to allow it.

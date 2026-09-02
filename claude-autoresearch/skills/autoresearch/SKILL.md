@@ -57,7 +57,7 @@ If a file read, write, or bash command fails with EPERM, EACCES, or "Operation n
 1. **Do NOT retry** the same operation.
 2. Run `nono why` to diagnose:
    ```bash
-   nono why --path /path/that/failed --op read 2>/dev/null
+   nono why --self --path /path/that/failed --op read 2>/dev/null
    ```
 3. Present the user with options:
    - **Quick fix**: restart with `--allow /path/to/needed` added to the nono command

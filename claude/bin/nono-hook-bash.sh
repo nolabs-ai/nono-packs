@@ -35,7 +35,7 @@ Network: $NET
 
 DO NOT ask the user for permission. Take these steps in order, every time:
 
-1. Run \`nono why --path <blocked-path> --op read\` immediately. Include its output verbatim in your reply so the user sees the diagnosis.
+1. Run \`nono why --self --path <blocked-path> --op read\` immediately. Include its output verbatim in your reply so the user sees the diagnosis.
 2. Then present the user with these two options as their NEXT decision point:
 
    Option A (quick fix): exit and restart with the path allowed:
