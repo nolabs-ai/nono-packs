@@ -12,6 +12,7 @@ on:
       - "deepseek/**"
       - "goose/**"
       - "hermes/**"
+      - "kilo/**"
       - "kimchi/**"
       - "openclaw/**"
       - "opencode/**"
@@ -27,6 +28,7 @@ on:
       - "deepseek/**"
       - "goose/**"
       - "hermes/**"
+      - "kilo/**"
       - "kimchi/**"
       - "openclaw/**"
       - "opencode/**"
@@ -140,7 +142,7 @@ jobs:
         env:
           NONO_SKIP_SANDBOX: "1"
         run: |
-          bash scripts/smoke-test-pack.sh "always-further/${{ matrix.pack }}"
+          bash scripts/smoke-test-pack.sh "local/${{ matrix.pack }}-dev"
 
   smoke-test-result:
     name: Pack smoke test result

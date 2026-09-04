@@ -9,14 +9,18 @@
 #   scripts/install-pack-local.sh <pack-dir> [namespace]
 #
 #   pack-dir   Directory containing package.json (e.g. claude, opencode)
-#   namespace  Registry namespace (default: always-further)
+#   namespace  Registry namespace (default: local)
 #
-# The pack is then addressable as <namespace>/<pack-name> in nono commands.
+# The pack name is suffixed with "-dev" in the store so it can't be confused
+# with a real registry package, and is addressable as
+# <namespace>/<pack-name>-dev (e.g. local/kilo-dev) in nono commands.
+# Local installs are unsigned (no .nono-trust.bundle), so pass
+# --trust-override to `nono run`/`nono why` when using them.
 
 set -euo pipefail
 
 PACK_DIR="${1:-}"
-NAMESPACE="${2:-always-further}"
+NAMESPACE="${2:-local}"
 
 if [[ -z "$PACK_DIR" || ! -f "$PACK_DIR/package.json" ]]; then
     echo "Usage: $0 <pack-dir> [namespace]" >&2
@@ -26,15 +30,16 @@ fi
 
 PACK_DIR="$(cd "$PACK_DIR" && pwd)"
 PACK_NAME=$(jq -r '.name' "$PACK_DIR/package.json")
+DEV_PACK_NAME="${PACK_NAME}-dev"
 VERSION=$(jq -r '.version' "$PACK_DIR/package.json")
 
 # Locate the nono config dir
 NONO_CONFIG="${NONO_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/nono}"
 PACKAGES_DIR="$NONO_CONFIG/packages"
-DEST="$PACKAGES_DIR/$NAMESPACE/$PACK_NAME"
+DEST="$PACKAGES_DIR/$NAMESPACE/$DEV_PACK_NAME"
 LOCKFILE="$PACKAGES_DIR/lockfile.json"
 
-echo "Installing $NAMESPACE/$PACK_NAME@$VERSION → $DEST"
+echo "Installing $NAMESPACE/$DEV_PACK_NAME@$VERSION → $DEST"
 
 mkdir -p "$DEST"
 
@@ -107,7 +112,7 @@ ENTRY=$(jq -n \
         wiring_record: []
     }')
 
-PACK_KEY="$NAMESPACE/$PACK_NAME"
+PACK_KEY="$NAMESPACE/$DEV_PACK_NAME"
 tmp=$(mktemp)
 jq --arg key "$PACK_KEY" --argjson entry "$ENTRY" \
     '.packages[$key] = $entry' "$LOCKFILE" > "$tmp"
