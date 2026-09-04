@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "name": "kilo",
+  "version": "0.1.0",
+  "description": "Teaches the Kilo Code CLI agent (kilo) how to work inside a nono security sandbox. Ships a matching nono profile and a kilo-native sandbox-awareness skill. Assumes the kilo CLI is already installed.",
+  "license": "Apache-2.0",
+  "platforms": ["macos", "linux"],
+  "min_nono_version": "0.61.0",
+  "keywords": ["kilo", "kilocode", "nono", "sandbox", "security", "capabilities"],
+  "artifacts": [
+    { "type": "profile", "path": "policy.json", "install_as": "kilo" },
+    { "type": "plugin", "path": "README.md" },
+    { "type": "plugin", "path": "assets/logo.png" },
+    { "type": "plugin", "path": "skills/nono-sandbox/SKILL.md" },
+    { "type": "plugin", "path": "wiring/profile-drafts-dir-marker" }
+  ],
+  "wiring": [
+    {
+      "type": "write_file",
+      "source": "wiring/profile-drafts-dir-marker",
+      "dest": "$NONO_CONFIG/profile-drafts/.nono-kilo-pack-marker"
+    },
+    {
+      "type": "write_file",
+      "source": "skills/nono-sandbox/SKILL.md",
+      "dest": "$HOME/.config/kilo/skills/nono-sandbox/SKILL.md"
+    }
+  ]
+}

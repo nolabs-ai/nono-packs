@@ -35,6 +35,7 @@ Current packs in this repository include:
 - [`codex`](./codex): Codex integration for working inside the `nono` sandbox
 - [`deepseek`](./deepseek): DeepSeek Harness (`dsh`) CLI agent profile and skill for working inside the `nono` sandbox
 - [`goose`](./goose): Goose CLI profile and Open Plugin for working inside the `nono` sandbox
+- [`kilo`](./kilo): Kilo Code CLI agent profile and skill for working inside the `nono` sandbox
 - [`kimchi`](./kimchi): Kimchi Coding Agent package and profile for working inside the `nono` sandbox
 - [`omp`](./omp): Oh My Pi coding harness plugin and profile for working inside the `nono` sandbox
 - [`pi`](./pi): Pi Coding Agent package and profile for working inside the `nono` sandbox
