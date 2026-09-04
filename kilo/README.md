@@ -11,7 +11,7 @@ This pack assumes `kilo` is already installed. It does not install or pin `kilo`
 Install:
 
 ```bash
-nono run --profile nolabs-ai/kilo -- kilo "<task>"
+nono run --profile nolabs-ai/kilo -- kilo
 ```
 
 If the pack is not already installed, nono will prompt to pull it.
@@ -27,4 +27,4 @@ If the pack is not already installed, nono will prompt to pull it.
 - `~/kilo.json` is allow-listed as a single file (not a directory grant) — it is not a broader `$HOME` access grant.
 - The curl-based installer places the `kilo` binary at `~/.kilo/bin/kilo`, outside the XDG dirs above, so this profile grants it read access to allow self-inspection (e.g. `argv0`/update checks). Invoke it by full path inside the sandbox — `~/.kilo/bin` is not added to `$PATH`.
 - macOS Keychain access is granted the same way as the `claude`, `codex`, and `goose` packs: `$HOME/Library/Keychains` in both `allow` and `bypass_protection`, gated `"when": "macos"`.
-- `kilo`'s interactive TUI mode (bare `kilo`, no task argument) makes a `realpath()` call on the bare `~/.local/state` (XDG state home) directory itself, not just `~/.local/state/kilo`. This isn't something kilocode's own open-source logic needs (it only ever touches `~/.local/state/kilo`) — it's Bun-runtime behavior inside the compiled TUI worker. On macOS, `allow_parent_of_protected: true` plus a `"when": "macos"`-gated `$HOME/.local/state` grant lets Seatbelt permit that parent directory while still denying nono's own protected `~/.local/state/nono` underneath it. This is macOS-only: Landlock on Linux can't express "allow this parent but deny one specific child," so the grant is scoped `"when": "macos"` and skipped entirely on Linux — bare `kilo` TUI mode remains unsandboxable there until upstream fixes it. The one-shot form (`kilo "<task>"`) doesn't hit this and works on both platforms without it.
+- `kilo`'s interactive TUI mode (bare `kilo`, no task argument) makes a `realpath()` call on the bare `~/.local/state` (XDG state home) directory itself, not just `~/.local/state/kilo`. This isn't something kilocode's own open-source logic needs (it only ever touches `~/.local/state/kilo`) — it's Bun-runtime behavior inside the compiled TUI worker. On macOS, `allow_parent_of_protected: true` plus a `"when": "macos"`-gated `$HOME/.local/state` grant lets Seatbelt permit that parent directory while still denying nono's own protected `~/.local/state/nono` underneath it. This is macOS-only: Landlock on Linux can't express "allow this parent but deny one specific child," so the grant is scoped `"when": "macos"` and skipped entirely on Linux — bare `kilo` TUI mode remains unsandboxable there until upstream fixes it. The one-shot form (`kilo "<task>"`) doesn't hit this and works on both platforms without the extra grant.
