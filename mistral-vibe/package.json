@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "name": "mistral-vibe",
+  "version": "0.1.0",
+  "description": "Mistral Vibe CLI package and matching nono profile for running Vibe inside the nono security sandbox.",
+  "license": "Apache-2.0",
+  "platforms": ["macos", "linux"],
+  "min_nono_version": "0.74.0",
+  "keywords": ["mistral", "vibe", "coding-agent", "nono", "sandbox", "security"],
+  "artifacts": [
+    { "type": "profile", "path": "policy.json", "install_as": "mistral-vibe" },
+    { "type": "plugin", "path": "README.md" },
+    { "type": "plugin", "path": "hooks/nono-sandbox.sh" },
+    { "type": "plugin", "path": "wiring/hooks.toml" },
+    { "type": "plugin", "path": "skills/nono-sandbox/SKILL.md" },
+    { "type": "plugin", "path": "wiring/profile-drafts-dir-marker" }
+  ],
+  "wiring": [
+    {
+      "type": "write_file",
+      "source": "wiring/profile-drafts-dir-marker",
+      "dest": "$NONO_CONFIG/profile-drafts/.nono-mistral-vibe-pack-marker"
+    },
+    {
+      "type": "write_file",
+      "source": "skills/nono-sandbox/SKILL.md",
+      "dest": "$HOME/.vibe/skills/nono-sandbox/SKILL.md"
+    },
+    {
+      "type": "write_file",
+      "source": "hooks/nono-sandbox.sh",
+      "dest": "$HOME/.vibe/hooks/nono-sandbox.sh"
+    },
+    {
+      "type": "toml_block",
+      "file": "$HOME/.vibe/hooks.toml",
+      "marker_id": "nolabs-ai-mistral-vibe",
+      "content": "wiring/hooks.toml",
+      "position": "bottom"
+    }
+  ]
+}

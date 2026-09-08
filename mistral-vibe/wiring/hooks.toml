@@ -1,0 +1,8 @@
+[[hooks]]
+name = "nono-sandbox-denial"
+type = "post_tool"
+match = "*"
+command = "$HOME/.vibe/hooks/nono-sandbox.sh"
+timeout = 5.0
+strict = false
+description = "Explain nono sandbox denials and profile remediation steps."

@@ -37,6 +37,7 @@ Current packs in this repository include:
 - [`goose`](./goose): Goose CLI profile and Open Plugin for working inside the `nono` sandbox
 - [`kilo`](./kilo): Kilo Code CLI agent profile and skill for working inside the `nono` sandbox
 - [`kimchi`](./kimchi): Kimchi Coding Agent package and profile for working inside the `nono` sandbox
+- [`mistral-vibe`](./mistral-vibe): Mistral Vibe CLI profile and sandbox-aware skill for working inside the `nono` sandbox
 - [`omp`](./omp): Oh My Pi coding harness plugin and profile for working inside the `nono` sandbox
 - [`pi`](./pi): Pi Coding Agent package and profile for working inside the `nono` sandbox
 
