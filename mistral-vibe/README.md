@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./assets/logo.png" alt="nono mistral-vibe" width="500" />
+</p>
+
 # nono mistral-vibe
 
 Sandbox profile for the [Mistral Vibe](https://docs.mistral.ai/vibe/code/cli/) coding agent.
