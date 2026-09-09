@@ -17,7 +17,7 @@ nono applies an allow-list of filesystem paths and network rules before your pro
 
 ## When an operation is denied
 
-If a file read, write, edit, or bash command fails with a permission error (EPERM, EACCES, "Operation not permitted", "Permission denied"):
+Output that explicitly names nono as the denying sandbox is conclusive. `landlock` and `sandbox: deny` signal sandbox enforcement but do not identify its provenance; generic EPERM, EACCES, "Operation not permitted", and "Permission denied" are also ambiguous. With a concrete path, run `nono why --self`; a successful result with status `DENIED` confirms the nono boundary, even when the reason is `path_not_granted` and no policy source is reported. If no path is available or `nono why` does not successfully report `DENIED`, report: `Nono sandbox unconfirmed; this permission failure needs a non-sandbox diagnosis.`
 
 1. **Do NOT retry** the same operation or try alternative paths.
 2. **Do NOT attempt workarounds** such as:
@@ -41,6 +41,8 @@ This tells you:
 - A suggested fix (e.g., `--allow-file /path/to/file`)
 
 Always run `nono why` before telling the user what to do. It gives you the precise diagnosis.
+
+Never infer the active profile. Use a profile name supplied in the user's launch context, or ask which profile they started with before drafting.
 
 ## Helping the user
 

@@ -1,14 +1,14 @@
 ---
 name: nono-sandbox
-description: Diagnose and resolve permission denials when opencode runs inside a nono security sandbox. Use this when a tool call, shell command, or file operation fails with "Operation not permitted", "Permission denied", EACCES, EPERM, landlock, or sandbox-denied errors, or when an outbound network request fails because the host is not on the sandbox allowlist (connection refused, timeout, or proxy/TLS errors).
+description: Diagnose confirmed nono sandbox denials for opencode. Generic permission failures require `nono why` or a clear non-sandbox diagnostic outcome before remediation; network diagnostics remain separate.
 version: 1.2.0
 platforms: [macos, linux]
 ---
 
-**On any EPERM / EACCES / "Operation not permitted" tool or shell failure:** run `nono why --self --path <blocked-path> --op read` immediately and include its output verbatim in your reply. Do NOT suggest sudo, chmod, or system permission changes. Then offer the user exactly these two options:
+Only output that explicitly names nono as the denying sandbox is conclusive by itself. `landlock` and `sandbox: deny` signal sandbox enforcement but do not identify its provenance; generic EPERM, EACCES, "Operation not permitted", and "Permission denied" are also ambiguous. With a concrete path, run `nono why --self --path <blocked-path> --op <needed-op>`; a successful result with status `DENIED` confirms the nono boundary, even when the reason is `path_not_granted` and no policy source is reported. If no path is available or `nono why` does not successfully report `DENIED`, report: `Nono sandbox unconfirmed; this permission failure needs a non-sandbox diagnosis.` Do not suggest sudo, chmod, or system permission changes, and offer the two options below, only after nono is confirmed:
 
-- **Option A (quick fix):** `nono run --allow /path/to/needed -- opencode`
-- **Option B (persistent fix):** draft a profile to `$XDG_CONFIG_HOME/nono/profile-drafts/<name>.json` extending `opencode`, add the path under `"allow"` or `"read"`, then tell the user to run `nono profile promote <name>` and start sessions with `nono run --profile <name> -- opencode`
+- **Option A (quick fix):** restart with the user-provided active profile: `nono run --profile <active-profile> --allow /path/to/needed -- opencode`
+- **Option B (persistent fix):** draft a profile to `$XDG_CONFIG_HOME/nono/profile-drafts/<name>.json` extending `<active-profile>`, add the path under `"allow"` or `"read"`, then tell the user to run `nono profile promote <name>` and start sessions with `nono run --profile <name> -- opencode`
 
 # Working inside a nono sandbox
 
@@ -16,15 +16,12 @@ The user has launched you with `nono run --profile <name> -- opencode`. nono enf
 
 ## Identifying a sandbox denial
 
-The denial signature is in the failed tool's output:
+These markers signal sandbox enforcement but do not identify nono as its provenance:
 
-- "Operation not permitted"
-- "Permission denied"
-- "EACCES" / "EPERM"
 - "landlock"
 - "sandbox: deny"
 
-When you see any of these on a file, shell, or tool failure, it is a nono boundary — not macOS TCC, not Full Disk Access, not Unix file permissions. Do NOT suggest:
+Never infer the active profile. Use a profile name supplied in the user's launch context, or ask which profile they started with before drafting. For a confirmed nono boundary, do NOT suggest:
 
 - System Settings / Privacy & Security
 - `chmod`, `chown`, `sudo`
@@ -62,7 +59,7 @@ The active profile directory `$XDG_CONFIG_HOME/nono/profiles/` is read-only from
 Write the JSON to `$XDG_CONFIG_HOME/nono/profile-drafts/<chosen-name>.json` extending the active profile. Minimal example for read-only access:
 
     {
-      "extends": "opencode",
+      "extends": "<active-profile>",
       "meta": { "name": "<chosen-name>", "version": "1.0.0" },
       "filesystem": { "read": ["/path/to/needed"] }
     }
@@ -99,7 +96,7 @@ If a host is genuinely needed, present the same two options as for filesystem de
 Add the host to `network.allow_domain` in a profile draft extending the active profile:
 
     {
-      "extends": "opencode",
+      "extends": "<active-profile>",
       "meta": { "name": "<chosen-name>", "version": "1.0.0" },
       "network": { "allow_domain": ["api.example.com"] }
     }

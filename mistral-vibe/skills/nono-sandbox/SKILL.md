@@ -6,18 +6,20 @@ user-invocable: false
 
 # Mistral Vibe inside nono
 
-When Vibe reports `Permission denied`, `Operation not permitted`, `EACCES`, or `EPERM`, treat it as a nono profile boundary. The operating system sandbox is the enforcement layer; retrying the same command or changing Vibe's own permissions cannot grant access.
+Only output that explicitly names nono as the denying sandbox is conclusive by itself. `landlock` and `sandbox: deny` signal sandbox enforcement but do not identify its provenance; `Permission denied`, `Operation not permitted`, `EACCES`, and `EPERM` are also ambiguous. When a concrete path is known, run `nono why --self --path <path> --op <needed-op>`; a successful result with status `DENIED` confirms the nono boundary, even when the reason is `path_not_granted` and no policy source is reported. Otherwise report: `Nono sandbox unconfirmed; this permission failure needs a non-sandbox diagnosis.` For a confirmed nono denial, the OS sandbox is the enforcement layer; retrying the same command or changing Vibe's own permissions cannot grant access.
+
+Never infer the active profile. Use the profile name supplied in the user's launch context, or ask which profile they started with before drafting or restarting.
 
 For a one-off path, restart with a narrow grant:
 
 ```bash
-nono run --profile mistral-vibe --allow /path/to/needed -- vibe
+nono run --profile <active-profile> --allow /path/to/needed -- vibe
 ```
 
-For repeated access, create a child profile extending `mistral-vibe`, add the path to its `filesystem.allow` or `filesystem.read`, validate it, and promote it outside the sandbox:
+For repeated access, create a child profile extending the user-provided active profile, add the path to its `filesystem.allow` or `filesystem.read`, validate it, and promote it outside the sandbox:
 
 ```bash
-nono profile init mistral-vibe-local --extends mistral-vibe --full
+nono profile init mistral-vibe-local --extends <active-profile> --full
 nono profile validate mistral-vibe-local
 nono profile promote mistral-vibe-local
 ```

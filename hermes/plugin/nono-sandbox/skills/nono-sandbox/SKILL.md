@@ -1,6 +1,6 @@
 ---
 name: nono-sandbox
-description: Diagnose and resolve permission denials when Hermes Agent runs inside a nono security sandbox. Use when terminal, file, browser, MCP, plugin, or skill operations fail with "Operation not permitted", "Permission denied", EACCES, EPERM, landlock, or sandbox-denied errors.
+description: Diagnose confirmed nono sandbox denials for Hermes Agent. Generic permission failures require `nono why` or a clear non-sandbox diagnostic outcome before remediation.
 version: 1.2.0
 platforms: [macos, linux]
 metadata:
@@ -21,15 +21,14 @@ This skill is bundled by the `nono-sandbox` Hermes plugin from the signed `nolab
 
 ## When to use this skill
 
-Use this skill when a Hermes tool or subprocess fails with:
+Use this skill to investigate a suspected nono denial. Only output that explicitly names nono as the denying sandbox is conclusive by itself. These markers signal sandbox enforcement but do not identify its provenance:
 
-- `Operation not permitted`
-- `Permission denied`
-- `EACCES` or `EPERM`
 - `landlock`
 - `sandbox: deny` or `sandbox denied`
 
 Common affected tools include `terminal`, `execute_code`, file read/write/edit tools, browser downloads, MCP subprocesses, plugin tools, and skill helper scripts.
+
+Generic `Operation not permitted`, `Permission denied`, `EACCES`, and `EPERM` are also ambiguous. With a concrete path, run `nono why --self`; a successful result with status `DENIED` confirms the nono boundary, even when the reason is `path_not_granted` and no policy source is reported. Otherwise report: `Nono sandbox unconfirmed; this permission failure needs a non-sandbox diagnosis.` Never infer the active profile; use the user's launch context or ask before drafting.
 
 ## Diagnosis
 
@@ -62,7 +61,7 @@ Present exactly two options to the user.
 Use this for a path needed only once:
 
 ```bash
-nono run --profile hermes --allow /path/to/needed -- hermes
+nono run --profile <active-profile> --allow /path/to/needed -- hermes
 ```
 
 Use `--read` instead of `--allow` when Hermes only needs view access.
@@ -73,7 +72,7 @@ Create a profile draft under `~/.config/nono/profile-drafts/<name>.json`:
 
 ```json
 {
-  "extends": "hermes",
+  "extends": "<active-profile>",
   "meta": { "name": "hermes-extra", "version": "1.0.0" },
   "filesystem": {
     "read": ["/path/to/needed"]

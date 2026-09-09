@@ -1,6 +1,6 @@
 ---
 name: nono-sandbox
-description: Diagnose and resolve permission denials when Codex runs inside a nono security sandbox. Use this when a Bash command, apply_patch, or MCP tool fails with "sandbox-exec: sandbox_apply: Operation not permitted", "Operation not permitted", "Permission denied", EACCES, EPERM, landlock, or sandbox-denied output. Do not merely report the failure: explain it is a nono OS sandbox boundary, avoid TCC/chmod/sudo advice, and offer the two fixes: restart once with nono run --allow, or draft a persistent profile in ~/.config/nono/profile-drafts for nono profile promote.
+description: Diagnose and resolve confirmed nono sandbox denials when Codex runs inside nono. Explicit nono output is conclusive; generic permission failures require `nono why` or a clear non-sandbox diagnostic outcome before remediation.
 ---
 
 # Working inside a nono sandbox
@@ -9,18 +9,17 @@ The user has launched you with `nono run --profile <name> -- codex`. nono enforc
 
 ## Identifying a sandbox denial
 
-The denial signature is in the failed tool's output:
+Only output that explicitly names nono as the denying sandbox is conclusive by itself. These markers signal sandbox enforcement but do not identify its provenance:
 
 - "sandbox-exec: sandbox_apply: Operation not permitted"
-- "Operation not permitted"
-- "Permission denied"
-- "EACCES" / "EPERM"
 - "landlock"
 - "sandbox: deny"
 
-When you see any of these on a Bash, apply_patch, or MCP file-tool failure, it is a nono boundary — not macOS TCC, not Full Disk Access, not Unix file permissions, not a Codex approval. On macOS, `sandbox-exec: sandbox_apply: Operation not permitted` often means Codex tried to apply its own sandbox inside the already-running nono Seatbelt sandbox; treat it as the same capability problem.
+On macOS, `sandbox-exec: sandbox_apply: Operation not permitted` can mean Codex tried to apply its own sandbox inside another Seatbelt sandbox; investigate it as a sandbox conflict without assuming nono caused it.
 
-Do NOT suggest:
+Generic `Operation not permitted`, `Permission denied`, `EACCES`, and `EPERM` are also ambiguous. If a concrete path is available, run `nono why --self --path <path> --op <needed-op>`; a successful result with status `DENIED` confirms the nono boundary, even when the reason is `path_not_granted` and no policy source is reported. If the path is unavailable or `nono why` does not successfully report `DENIED`, report: `Nono sandbox unconfirmed; this permission failure needs a non-sandbox diagnosis.` Do not offer a profile change until nono is confirmed.
+
+For a confirmed nono denial, do NOT suggest:
 
 - System Settings / Privacy & Security
 - `chmod`, `chown`, `sudo`
@@ -29,7 +28,7 @@ Do NOT suggest:
 
 ## Diagnosing
 
-Run `nono why` to see exactly why access was denied:
+For a concrete path, run `nono why` to see whether nono denied access:
 
     nono why --self --path /the/blocked/path --op read
 
@@ -53,11 +52,11 @@ If `~/.config/nono/profile-drafts` does not exist or cannot be written, or `nono
 
 Create the draft with the pack helper. Do not use `mkdir`, `printf`, `cat`, heredocs, shell redirection, or inline JSON to write profile drafts.
 
-Do not run shell/file checks to discover the active profile; those checks may themselves be blocked by the current sandbox. For this local dev install, assume `codex-dev` unless the user says they launched Codex with a custom profile. Registry installs should use `codex`. Ask which profile they started with only when the user says they launched Codex with a custom profile.
+Do not run shell/file checks to discover the active profile; those checks may themselves be blocked by the current sandbox. Never infer it from the install type. Use the profile name supplied in the user's launch context; if it is absent, ask which profile they started with before drafting.
 
 For read-only directory access, run:
 
-    ~/.codex/bin/nono-draft-profile --name codex-documents --extends codex-dev --read /path/to/needed
+    ~/.codex/bin/nono-draft-profile --name codex-documents --extends <active-profile> --read /path/to/needed
 
 For read+write directory access, use `--allow` instead of `--read`. For a single file, use `--read-file` or `--allow-file`.
 

@@ -52,7 +52,7 @@ The `claude-code-autoresearch` profile (installed by this pack) already includes
 
 ## When an operation is denied
 
-If a file read, write, or bash command fails with EPERM, EACCES, or "Operation not permitted":
+Output that explicitly names nono as the denying sandbox is conclusive. `landlock` and `sandbox: deny` signal sandbox enforcement but do not identify its provenance; generic EPERM, EACCES, and "Operation not permitted" are also ambiguous. With a concrete path, run `nono why --self`; a successful result with status `DENIED` confirms the nono boundary, even when the reason is `path_not_granted` and no policy source is reported. If no path is available or `nono why` does not successfully report `DENIED`, report: `Nono sandbox unconfirmed; this permission failure needs a non-sandbox diagnosis.`
 
 1. **Do NOT retry** the same operation.
 2. Run `nono why` to diagnose:
@@ -61,7 +61,7 @@ If a file read, write, or bash command fails with EPERM, EACCES, or "Operation n
    ```
 3. Present the user with options:
    - **Quick fix**: restart with `--allow /path/to/needed` added to the nono command
-   - **Profile edit**: add the path to `~/.config/nono/profiles/claude-code-autoresearch.json` under `filesystem.allow`
+   - **Profile draft**: use the active profile supplied in the user's launch context; if it is absent, ask which profile they started with, then draft an extending profile with the path under `filesystem.allow` and promote it outside the sandbox
 
 ## Common ML training permission issues
 
