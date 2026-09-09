@@ -1,6 +1,6 @@
 ---
 name: nono-sandbox
-description: Diagnose and resolve permission denials when Oh My Pi runs inside a nono security sandbox. Use this when a tool call, shell command, file operation, extension, package install, or provider request fails with "Operation not permitted", "Permission denied", EACCES, EPERM, landlock, or sandbox-denied errors.
+description: Diagnose confirmed nono sandbox denials for Oh My Pi. Generic permission failures require `nono why` or a clear non-sandbox diagnostic outcome before remediation.
 version: 1.0.0
 platforms: [macos, linux]
 ---
@@ -13,15 +13,14 @@ Oh My Pi cannot expand nono access from inside the session. Retries, approval pr
 
 ## When to use this skill
 
-Use this skill when an Oh My Pi tool, extension, package install, shell command, MCP subprocess, or provider request fails with:
+Use this skill to investigate a suspected nono denial. Only output that explicitly names nono as the denying sandbox is conclusive by itself. These markers signal sandbox enforcement but do not identify its provenance:
 
-- `Operation not permitted`
-- `Permission denied`
-- `EACCES` or `EPERM`
 - `landlock`
 - `sandbox: deny` or `sandbox denied`
 
 ## Diagnosis
+
+Generic `Operation not permitted`, `Permission denied`, `EACCES`, and `EPERM` are also ambiguous. With a concrete path, run `nono why --self`; a successful result with status `DENIED` confirms the nono boundary, even when the reason is `path_not_granted` and no policy source is reported. Otherwise report: `Nono sandbox unconfirmed; this permission failure needs a non-sandbox diagnosis.` Never infer the active profile; use the user's launch context or ask before drafting.
 
 1. Identify the concrete blocked path or network action from the failed tool call, stderr, traceback, or command arguments.
 2. Run:
@@ -46,7 +45,7 @@ Present exactly two options to the user.
 Use this for a path needed only once:
 
 ```bash
-nono run --profile omp --allow /path/to/needed -- omp
+nono run --profile <active-profile> --allow /path/to/needed -- omp
 ```
 
 Use `--read` instead of `--allow` when Oh My Pi only needs view access.
@@ -57,7 +56,7 @@ Create a profile draft under `~/.config/nono/profile-drafts/<name>.json`:
 
 ```json
 {
-  "extends": "omp",
+  "extends": "<active-profile>",
   "meta": { "name": "omp-extra", "version": "1.0.0" },
   "filesystem": {
     "read": ["/path/to/needed"]

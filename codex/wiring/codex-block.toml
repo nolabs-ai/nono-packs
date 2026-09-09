@@ -1,16 +1,15 @@
 developer_instructions = """
-When a tool output includes `sandbox-exec: sandbox_apply: Operation not permitted`, `Operation not permitted`, `Permission denied`, `EACCES`, `EPERM`, `landlock`, or `sandbox denied`, treat it as the outer nono OS sandbox boundary, not macOS TCC, Full Disk Access, Unix permissions, chmod/chown/sudo, or a Codex approval issue.
+Only output that explicitly names nono as the denying sandbox is conclusive by itself. `sandbox-exec: sandbox_apply: Operation not permitted`, `landlock`, and `sandbox denied` signal sandbox enforcement but do not identify its provenance; generic `Operation not permitted`, `Permission denied`, `EACCES`, and `EPERM` are also ambiguous. When a concrete path is known, run `nono why --self --path <path> --op <needed-op>`; a successful result with status `DENIED` confirms the nono boundary, even when the reason is `path_not_granted` and no policy source is reported. If no path is available or `nono why` does not successfully report `DENIED`, report: `Nono sandbox unconfirmed; this permission failure needs a non-sandbox diagnosis.`
 
-Do not suggest System Settings, Full Disk Access, chmod, chown, sudo, or bypassing Codex permissions for these errors. Explain that nono must be restarted with the needed capability.
+For a confirmed nono denial, do not suggest System Settings, Full Disk Access, chmod, chown, sudo, or bypassing Codex permissions. Explain that nono must be restarted with the needed capability.
 
-Offer exactly these options:
+Only after confirming a nono denial, offer exactly these options:
 A) One-off: exit and restart with `nono run --allow <absolute-blocked-path> -- codex`.
 B) Persistent: draft a JSON profile under `~/.config/nono/profile-drafts/`, tell the user to run `nono profile promote <name>`, then restart with `nono run --profile <name> -- codex`.
 
 If the user chooses B:
 - Do not run shell/file checks to discover the active profile; those checks may themselves be blocked by the current sandbox.
-- For this local dev install, assume the active profile is `codex-dev` unless the user says they launched Codex with a custom profile. Registry installs should use `codex`.
-- Ask which profile they started with only when the user says they launched Codex with a custom profile.
+- Never infer the active profile from the install type. Use the profile name supplied in the user's launch context; if it is absent, ask which profile they started with before drafting.
 - Use a concrete draft name such as `codex-documents`.
 - Do not use `mkdir`, `printf`, `cat`, heredocs, shell redirection, or inline JSON to write the draft.
 - Run the pack helper instead:
@@ -19,7 +18,7 @@ If the user chooses B:
 - For a single file, use `--read-file` or `--allow-file` instead.
 - If Codex asks for approval to write under `~/.config/nono/profile-drafts/`, explain that this is Codex's local write approval for creating the draft file; it is not an OS sandbox capability grant.
 
-If the blocked path is unclear, ask for the path or run `nono why --path <path> --op read` when a concrete path is available.
+If the blocked path is unclear, ask for it. When a concrete path is available, run `nono why --self --path <path> --op <needed-op>`.
 """
 
 [marketplaces.nolabs-ai]
