@@ -24,7 +24,6 @@ This installs the `claude-code-autoresearch` profile and wires the plugin into C
 
 See [autoresearch-nono](https://github.com/nolabs-ai/autoresearch-nono) for the full setup guide including attestation, data preparation, and launching.
 
-
 ## What nono adds
 
 | Without nono | With nono |
