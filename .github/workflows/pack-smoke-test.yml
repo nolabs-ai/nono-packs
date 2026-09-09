@@ -123,6 +123,7 @@ jobs:
           # changed pack otherwise, which leaves cross-pack extends dangling.
           PACK="${{ matrix.pack }}"
           PROFILE_PATH=$(jq -r '.artifacts[] | select(.type=="profile") | .path' "$PACK/package.json" | head -1)
+          DEV_EXTENDS=""
           if [[ -n "$PROFILE_PATH" && -f "$PACK/$PROFILE_PATH" ]]; then
             EXTENDS=$(jq -r '.extends | if type=="array" then .[] else . end' "$PACK/$PROFILE_PATH" 2>/dev/null || true)
             while IFS= read -r ext; do
@@ -132,11 +133,26 @@ jobs:
               if [[ -d "$DEP_PACK" && -f "$DEP_PACK/package.json" ]]; then
                 echo "Installing dependency: $ext"
                 bash scripts/install-pack-local.sh "$DEP_PACK" "$DEP_NS"
+                # install-pack-local.sh always suffixes the installed package
+                # (and its profile) with "-dev" to avoid clashing with real
+                # registry packages, so the dependent profile's `extends`
+                # must be rewritten to match the suffixed name post-install.
+                DEV_EXTENDS="${DEP_NS}/${DEP_PACK}-dev"
               fi
             done <<< "$EXTENDS"
           fi
 
           bash scripts/install-pack-local.sh "$PACK"
+
+          if [[ -n "$DEV_EXTENDS" ]]; then
+            NONO_CONFIG="${NONO_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/nono}"
+            NAME=$(jq -r '.name' "$PACK/package.json")
+            INSTALL_AS=$(jq -r '.artifacts[] | select(.type=="profile") | .install_as // (.path | sub(".json$";""))' "$PACK/package.json" | head -1)
+            INSTALLED_PROFILE="$NONO_CONFIG/packages/local/${NAME}-dev/profiles/${INSTALL_AS}.json"
+            tmp=$(mktemp)
+            jq --arg ext "$DEV_EXTENDS" '.extends = $ext' "$INSTALLED_PROFILE" > "$tmp"
+            mv "$tmp" "$INSTALLED_PROFILE"
+          fi
 
       - name: Run smoke tests
         env:
