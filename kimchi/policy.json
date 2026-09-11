@@ -78,7 +78,7 @@
   },
   "session_hooks": {
     "before": {
-      "script": "$NONO_PACKAGES/nolabs-ai/kimchi/hooks/before.sh",
+      "script": "$PACK_DIR/hooks/before.sh",
       "timeout_secs": 10
     }
   }

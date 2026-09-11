@@ -31,7 +31,7 @@ This prevents common bad guidance such as retrying the same action, suggesting `
 
 Landlock and Seatbelt can only grant a filesystem rule for a path that already exists. On a first run, a few state/cache/etc. directories don't exist yet, so the sandboxed opencode process fails immediately.
 
-`policy.json` wires `bin/ensure-dirs.sh` as a `session_hooks.before` hook, which nono runs on the host before applying the sandbox to `mkdir -p` them first. The hook resolves through `$NONO_PACKAGES` to the installed pack directory.
+`policy.json` wires `bin/ensure-dirs.sh` as a `session_hooks.before` hook, which nono runs on the host before applying the sandbox to `mkdir -p` them first. The hook resolves through `$PACK_DIR` to the installed pack directory.
 
 ## Credential Injection
 

@@ -56,7 +56,7 @@
   "workdir": { "access": "readwrite" },
   "session_hooks": {
     "before": {
-      "script": "$NONO_PACKAGES/nolabs-ai/claude/bin/ensure-dirs.sh",
+      "script": "$PACK_DIR/bin/ensure-dirs.sh",
       "timeout_secs": 10
     }
   },
