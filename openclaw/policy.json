@@ -38,7 +38,7 @@
   },
   "network": { "block": false },
   "workdir": { "access": "read" },
-  "undo": {
+  "rollback": {
     "exclude_patterns": ["node_modules", ".next"]
   },
   "interactive": false,

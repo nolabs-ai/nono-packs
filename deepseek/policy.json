@@ -44,7 +44,7 @@
     "allow_localhost": true
   },
   "allow_launch_services": true,
-  "undo": {
+  "rollback": {
     "exclude_patterns": ["node_modules", ".next", "__pycache__", "target", ".dsh"],
     "exclude_globs": ["*.tmp.[0-9]*.[0-9]*"]
   },

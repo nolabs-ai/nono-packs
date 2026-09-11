@@ -121,7 +121,7 @@
       "OMP_NONO_STATUS_INDICATOR": "true"
     }
   },
-  "undo": {
+  "rollback": {
     "exclude_patterns": [
       "node_modules",
       ".next",
