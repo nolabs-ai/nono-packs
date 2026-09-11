@@ -102,7 +102,7 @@
   },
   "session_hooks": {
     "before": {
-      "script": "$PACK_DIR/bin/ensure-dirs.sh",
+      "script": "$NONO_PACKAGES/nolabs-ai/opencode/bin/ensure-dirs.sh",
       "timeout_secs": 10
     }
   },
