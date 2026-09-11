@@ -275,7 +275,7 @@ nono run --rollback --no-rollback-prompt --profile omp -- omp
 Exclude noisy paths from snapshot tracking in your child profile:
 
 ```json
-"undo": {
+"rollback": {
   "exclude_patterns": ["node_modules", ".next", "__pycache__", ".omp"],
   "exclude_globs": ["*.tmp.[0-9]*.[0-9]*"]
 }

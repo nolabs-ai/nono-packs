@@ -76,7 +76,6 @@
     ],
     "exclude_globs": ["*.tmp.[0-9]*.[0-9]*"]
   },
-  "interactive": true,
   "session_hooks": {
     "before": {
       "script": "$NONO_PACKAGES/nolabs-ai/kimchi/hooks/before.sh",
