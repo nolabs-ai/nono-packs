@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "mistral-vibe",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Mistral Vibe CLI package and matching nono profile for running Vibe inside the nono security sandbox.",
   "license": "Apache-2.0",
   "platforms": ["macos", "linux"],
