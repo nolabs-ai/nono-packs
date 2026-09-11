@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "deepseek",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Teaches the DeepSeek Harness (dsh) CLI agent how to work inside a nono security sandbox. Ships a matching nono profile and a dsh-native sandbox-awareness skill. Assumes dsh is already installed (e.g. via npx @deepseek-ai/dsh); verified against dsh 0.1.1-rc.2.",
   "license": "Apache-2.0",
   "platforms": ["macos", "linux"],

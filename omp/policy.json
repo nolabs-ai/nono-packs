@@ -121,7 +121,7 @@
       "OMP_NONO_STATUS_INDICATOR": "true"
     }
   },
-  "undo": {
+  "rollback": {
     "exclude_patterns": [
       "node_modules",
       ".next",
@@ -130,6 +130,5 @@
       ".omp"
     ],
     "exclude_globs": ["*.tmp.[0-9]*.[0-9]*"]
-  },
-  "interactive": true
+  }
 }

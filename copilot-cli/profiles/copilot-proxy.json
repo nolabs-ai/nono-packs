@@ -11,7 +11,7 @@
     ]
   },
   "network": {
-    "proxy_credentials": ["copilot_cli"],
+    "credentials": ["copilot_cli"],
     "custom_credentials": {
       "copilot_cli": {
         "upstream": "https://github.com",

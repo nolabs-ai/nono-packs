@@ -38,10 +38,9 @@
   },
   "network": { "block": false },
   "workdir": { "access": "read" },
-  "undo": {
+  "rollback": {
     "exclude_patterns": ["node_modules", ".next"]
   },
-  "interactive": false,
   "unsafe_macos_seatbelt_rules": [
     "(allow user-preference-read)"
   ]
