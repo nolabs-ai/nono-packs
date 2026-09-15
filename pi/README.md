@@ -51,7 +51,7 @@ The cleanest approach is to skip (`Enter`) and add any extra paths manually to y
 
 To create your own custom profile that extends the base `nolabs-ai/pi` profile, use the `nono profile init` command with the `--extends` flag. This allows you to inherit from the base profile while customizing specific aspects such as credential routes and network filtering.
 
-Hopefully you already have a `~/.config/nono/profile/pi.json` file from the earlier step (if not go back and run `nono profile init`), you can now edit that file to add credential routes, API keys, tokens, extra filesystem grants, and any other customizations — see the sections below. When you're happy with the profile, create a repo, push the code and add it to this registry, you can then pull your custom profile from any machine`nono pull johndoe/<your-profile>` and run pi just how you like with the same profile and settings everywhere.
+Hopefully you already have a `~/.config/nono/profiles/pi.json` file from the earlier step (if not go back and run `nono profile init`), you can now edit that file to add credential routes, API keys, tokens, extra filesystem grants, and any other customizations — see the sections below. When you're happy with the profile, create a repo, push the code and add it to this registry, you can then pull your custom profile from any machine`nono pull johndoe/<your-profile>` and run pi just how you like with the same profile and settings everywhere.
 
 ## Credential Protection
 
