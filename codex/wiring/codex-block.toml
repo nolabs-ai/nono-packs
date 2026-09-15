@@ -1,6 +1,8 @@
 developer_instructions = """
 Only output that explicitly names nono as the denying sandbox is conclusive by itself. `sandbox-exec: sandbox_apply: Operation not permitted`, `landlock`, and `sandbox denied` signal sandbox enforcement but do not identify its provenance; generic `Operation not permitted`, `Permission denied`, `EACCES`, and `EPERM` are also ambiguous. When a concrete path is known, run `nono why --self --path <path> --op <needed-op>`; a successful result with status `DENIED` confirms the nono boundary, even when the reason is `path_not_granted` and no policy source is reported. If no path is available or `nono why` does not successfully report `DENIED`, report: `Nono sandbox unconfirmed; this permission failure needs a non-sandbox diagnosis.`
 
+`sandbox-exec: sandbox_apply: Operation not permitted` is different: Codex tried to apply its own Seatbelt sandbox inside an already-sandboxed process and the kernel refused (`forbidden-sandbox-reinit`). It names no path. Do not run `nono why --path` for it and do not offer options A or B; no path grant or profile change alters it. Tell the user to restart Codex with its built-in sandbox disabled so nono stays the enforcement boundary: `nono run --profile <name> -- codex --sandbox danger-full-access --ask-for-approval on-request`.
+
 For a confirmed nono denial, do not suggest System Settings, Full Disk Access, chmod, chown, sudo, or bypassing Codex permissions. Explain that nono must be restarted with the needed capability.
 
 Only after confirming a nono denial, offer exactly these options:
