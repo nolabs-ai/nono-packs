@@ -46,11 +46,11 @@ If `NONO_CAP_FILE` is set, inspect the full capability set:
 
 ### Option A — quick fix (one-off)
 
-Exit opencode and restart with the path explicitly allowed:
+Exit opencode and restart with only the access actually needed. Never default to `--allow` (read+write) when the denial was read-only or write-only:
 
-    nono run --allow /path/to/needed -- opencode
-
-Use `--read` when only read access is needed.
+    nono run --read /path/to/needed -- opencode    # read-only access
+    nono run --write /path/to/needed -- opencode   # write-only access
+    nono run --allow /path/to/needed -- opencode   # only when both are required
 
 ### Option B — persistent fix (draft a profile)
 

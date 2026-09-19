@@ -74,10 +74,12 @@ Explain to the user below:
 
 ### Option C: one-off restart
 
-Use this for a remediation needed only once:
+Use this for a remediation needed only once, with only the access actually needed. Never default to `--allow` (read+write) when the denial was read-only or write-only:
 
 ```bash
-nono run --profile {{NONO_PROFILE}} --allow /path/to/needed -- {{NONO_TAIL}}
+nono run --profile {{NONO_PROFILE}} --read /path/to/needed -- {{NONO_TAIL}}    # read-only access
+nono run --profile {{NONO_PROFILE}} --write /path/to/needed -- {{NONO_TAIL}}   # write-only access
+nono run --profile {{NONO_PROFILE}} --allow /path/to/needed -- {{NONO_TAIL}}   # only when both are required
 ```
 
 ## Do not

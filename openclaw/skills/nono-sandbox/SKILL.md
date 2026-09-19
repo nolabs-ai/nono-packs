@@ -38,9 +38,11 @@ The output names the rule that blocked the path and suggests the minimum grant t
 
 ### Option A — quick fix (one-off)
 
-Exit OpenClaw and restart with the path explicitly allowed:
+Exit OpenClaw and restart with only the access actually needed. Never default to `--allow` (read+write) when the denial was read-only or write-only:
 
-    nono run --allow /path/to/needed -- openclaw
+    nono run --read /path/to/needed -- openclaw    # read-only access
+    nono run --write /path/to/needed -- openclaw   # write-only access
+    nono run --allow /path/to/needed -- openclaw   # only when both are required
 
 Use this for paths the user only needs occasionally.
 

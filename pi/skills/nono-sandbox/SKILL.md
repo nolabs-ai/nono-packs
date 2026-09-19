@@ -42,13 +42,13 @@ Present exactly two options to the user.
 
 ### Option A: one-off restart
 
-Use this for a path needed only once:
+Use this for a path needed only once, with only the access actually needed. Never default to `--allow` (read+write) when the denial was read-only or write-only:
 
 ```bash
-nono run --profile <active-profile> --allow /path/to/needed -- pi
+nono run --profile <active-profile> --read /path/to/needed -- pi    # read-only access
+nono run --profile <active-profile> --write /path/to/needed -- pi   # write-only access
+nono run --profile <active-profile> --allow /path/to/needed -- pi   # only when both are required
 ```
-
-Use `--read` instead of `--allow` when Pi only needs view access.
 
 ### Option B: profile draft
 

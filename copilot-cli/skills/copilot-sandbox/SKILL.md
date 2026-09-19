@@ -55,10 +55,12 @@ Never infer the active profile. Use a profile name supplied in the user's launch
 
 ### Option A — quick fix (one-off)
 
-Exit Copilot and restart with the path explicitly allowed:
+Exit Copilot and restart with only the access actually needed. Never default to `--allow` (read+write) when the denial was read-only or write-only:
 
 ```
-nono run --allow /path/to/needed -- copilot
+nono run --read /path/to/needed -- copilot    # read-only access
+nono run --write /path/to/needed -- copilot   # write-only access
+nono run --allow /path/to/needed -- copilot   # only when both are required
 ```
 
 ### Option B — persistent fix (write a profile)
