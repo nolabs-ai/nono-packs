@@ -5,6 +5,8 @@ const DENIAL_PATTERN =
 
 const PATH_RE = /(?:~\/|\/)[^\s"'`,;:]+/
 
+const NONO_STATUS_DESCRIPTION = "Show nono sandbox status for this opencode session"
+
 type CredentialRoute = {
   upstream: string
   credential_key: string
@@ -181,17 +183,13 @@ function buildStatusReport(caps: Caps | null): string {
   return lines.filter(Boolean).join("\n")
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function appendGuidance(result: any, guidance: string): void {
-  if (!result || typeof result !== "object") return
-  const r = result as Record<string, unknown>
-
-  if (typeof r.content === "string") {
-    r.output += guidance
-    return
-  }
-  if (Array.isArray(r.content)) {
-    const parts = [...r.content]
+// Shared by both plugin generations: append a guidance block to a v2-style
+// content value (a plain string or an array of { type: "text", text } parts),
+// returning the updated value.
+function appendContentGuidance(content: unknown, guidance: string): unknown {
+  if (typeof content === "string") return content + guidance
+  if (Array.isArray(content)) {
+    const parts = [...content]
     const lastText = parts
       .map(p => typeof (p as { text?: unknown }).text === "string")
       .lastIndexOf(true)
@@ -203,14 +201,18 @@ function appendGuidance(result: any, guidance: string): void {
     } else {
       parts.push({ type: "text", text: guidance })
     }
-    r.content = parts
+    return parts
   }
+  if (content === undefined || content === null) {
+    return [{ type: "text", text: guidance }]
+  }
+  return content
 }
 
-// eslint-disable-next-line
-export const NonoSandboxPlugin = async () => {
-  if (!insideNono()) return {}
-
+// v1 hook object. OpenCode 1.18.29+ calls server(); this path is kept until
+// the v1 support window ends, then this function is deleted with the
+// `async server()` binding below.
+function v1Hooks() {
   const caps = readCaps()
 
   return {
@@ -229,7 +231,7 @@ export const NonoSandboxPlugin = async () => {
     // Custom tool nono_status that outputs caps
     tool: {
       nono_status: {
-        description: "Show nono sandbox status for this opencode session",
+        description: NONO_STATUS_DESCRIPTION,
         args: {},
         execute: async () => ({
           title: "nono sandbox status",
@@ -256,4 +258,101 @@ export const NonoSandboxPlugin = async () => {
       appendGuidance(result, buildGuidance(liveCaps, blockedPath))
     },
   }
+}
+
+// v1 result mutation. Keeps the historical v1 behavior byte-for-byte: result
+// is the opencode v1 tool output, which carries the display text in the
+// `output` field while MCP-style tools carry `content` parts. Note the
+// string-content branch appends to `output` — that quirk is preserved from
+// the original plugin so v1 behavior does not change; leave it alone when
+// deleting the v1 path later.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function appendGuidance(result: any, guidance: string): void {
+  if (!result || typeof result !== "object") return
+  const r = result as Record<string, unknown>
+
+  if (typeof r.content === "string") {
+    r.output += guidance
+    return
+  }
+  if (Array.isArray(r.content)) {
+    r.content = appendContentGuidance(r.content, guidance)
+  }
+}
+
+// The v2 loader validates the default export by shape: it needs `id` plus a
+// `setup` function. `Plugin.define` from "@opencode/plugin" is only an
+// identity helper, so we export the object literal directly instead. This
+// keeps the plugin self-contained (no node_modules) so it loads as a raw
+// file in both v1 (which calls `server`) and v2 (which calls `setup`).
+export default {
+  id: "nono-sandbox",
+
+  // v2 default entrypoint. OpenCode 2.x calls setup(ctx); hooks, tools, and
+  // transforms registered here are scoped to the plugin and disposed on
+  // unload, so there is no cleanup function to return.
+  async setup(ctx: any) {
+    if (!insideNono()) return
+
+    const caps = readCaps()
+
+    // Inject nono context before each agent model request so the model knows
+    // the rules. Context structures use a system parts array in v2.
+    if (caps) {
+      await ctx.session.hook("context", (event: any) => {
+        const system = event.system ?? (event.system = [])
+        system.push({ type: "text", text: buildSystemContext(caps) })
+      })
+    }
+
+    // Custom tool nono_status that outputs caps. Tool schemas are JSON
+    // Schema; execution returns structured content.
+    await ctx.tool.transform((editor: any) => {
+      editor.add({
+        name: "nono_status",
+        description: NONO_STATUS_DESCRIPTION,
+        input: {
+          type: "object",
+          properties: {},
+          additionalProperties: false,
+        },
+        execute: async () => ({ content: buildStatusReport(readCaps()) }),
+      })
+    })
+
+    // Fires after every tool call. When the event carries a denial
+    // signature we append capability context and Option A/B remediation to
+    // the result the model will see. We match on the whole event (input +
+    // result) rather than just the result, unlike the v1 path, so a blocked
+    // path can be recovered from the tool input when the result is generic.
+    await ctx.tool.hook("execute.after", (event: any) => {
+      if (!DENIAL_PATTERN.test(JSON.stringify(event))) return
+
+      const liveCaps = readCaps()
+      if (!liveCaps) return
+
+      const inputText = JSON.stringify(event.input)
+      const resultText =
+        event.status === "error" ? JSON.stringify(event.error) : JSON.stringify(event.result)
+      const blockedPath = extractPath(inputText) ?? extractPath(resultText)
+      const guidance = buildGuidance(liveCaps, blockedPath)
+
+      if (event.status === "error") {
+        if (event.error && typeof event.error.message === "string") {
+          event.error.message += guidance
+        }
+        return
+      }
+      if (event.result && typeof event.result === "object") {
+        event.result.content = appendContentGuidance(event.result.content, guidance)
+      }
+    })
+  },
+
+  // v1 entrypoint. OpenCode 1.18.29+ calls server(); remove this binding (and
+  // v1Hooks above) once the v1 support window ends.
+  async server() {
+    if (!insideNono()) return {}
+    return v1Hooks()
+  },
 }
