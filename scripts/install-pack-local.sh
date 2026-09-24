@@ -39,13 +39,6 @@ PACKAGES_DIR="$NONO_CONFIG/packages"
 DEST="$PACKAGES_DIR/$NAMESPACE/$DEV_PACK_NAME"
 LOCKFILE="$PACKAGES_DIR/lockfile.json"
 
-echo "Installing $NAMESPACE/$DEV_PACK_NAME@$VERSION → $DEST"
-
-mkdir -p "$DEST"
-
-# Copy package.json
-cp "$PACK_DIR/package.json" "$DEST/package.json"
-
 # Copy each artifact to its correct location in the store.
 # Profiles are installed as profiles/<install_as>.json.
 # Plugins keep their source path relative to the pack dir.
@@ -56,6 +49,48 @@ sha256_for() {
         shasum -a 256 "$1" | awk '{print $1}'
     fi
 }
+
+validate_profile_path_kinds() {
+    local profile="$1"
+    local conflicts
+
+    conflicts=$(jq -r '
+        def paths($entries):
+            [($entries // [])[] | if type == "object" then .path else . end];
+
+        .filesystem as $fs
+        | [
+            { directory: "allow", file: "allow_file" },
+            { directory: "read", file: "read_file" },
+            { directory: "write", file: "write_file" }
+          ][] as $pair
+        | paths($fs[$pair.directory]) as $directories
+        | paths($fs[$pair.file]) as $files
+        | $directories[] as $path
+        | select($files | index($path))
+        | "\($pair.directory)/\($pair.file): \($path)"
+    ' "$profile")
+
+    if [[ -n "$conflicts" ]]; then
+        echo "ERROR: profile grants the same path as both a directory and a file: $profile" >&2
+        while IFS= read -r conflict; do
+            echo "  $conflict" >&2
+        done <<< "$conflicts"
+        exit 1
+    fi
+}
+
+# Reject invalid profiles before creating a partial package installation.
+while IFS= read -r profile_path; do
+    [[ -f "$PACK_DIR/$profile_path" ]] && validate_profile_path_kinds "$PACK_DIR/$profile_path"
+done < <(jq -r '.artifacts[] | select(.type == "profile") | .path' "$PACK_DIR/package.json")
+
+echo "Installing $NAMESPACE/$DEV_PACK_NAME@$VERSION → $DEST"
+
+mkdir -p "$DEST"
+
+# Copy package.json
+cp "$PACK_DIR/package.json" "$DEST/package.json"
 
 # Build the artifacts JSON blob for the lockfile as we copy files
 ARTIFACTS_JSON="{"

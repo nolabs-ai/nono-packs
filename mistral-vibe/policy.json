@@ -31,12 +31,9 @@
   "filesystem": {
     "allow": [
       "$HOME/.vibe",
-      "$NONO_CONFIG/profile-drafts",
-      "~/.vibe"
+      "$NONO_CONFIG/profile-drafts"
     ],
-    "allow_file": [
-      "~/.vibe"
-    ],
+    "allow_file": [],
     "read": [
       "$HOME/.local/bin",
       "$HOME/.local/share/uv",
