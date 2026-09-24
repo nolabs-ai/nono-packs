@@ -10,10 +10,12 @@ Only output that explicitly names nono as the denying sandbox is conclusive by i
 
 Never infer the active profile. Use the profile name supplied in the user's launch context, or ask which profile they started with before drafting or restarting.
 
-For a one-off path, restart with a narrow grant:
+For a one-off path, restart with only the access actually needed. Never default to `--allow` (read+write) when the denial was read-only or write-only:
 
 ```bash
-nono run --profile <active-profile> --allow /path/to/needed -- vibe
+nono run --profile <active-profile> --read /path/to/needed -- vibe    # read-only access
+nono run --profile <active-profile> --write /path/to/needed -- vibe   # write-only access
+nono run --profile <active-profile> --allow /path/to/needed -- vibe   # only when both are required
 ```
 
 For repeated access, create a child profile extending the user-provided active profile, add the path to its `filesystem.allow` or `filesystem.read`, validate it, and promote it outside the sandbox:
