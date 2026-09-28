@@ -28,6 +28,7 @@
       "$HOME/.config/kilo",
       "$HOME/.local/share/kilo",
       "$HOME/.local/state/kilo",
+      "$HOME/.local/state/kilo-sandbox-policy",
       "$HOME/.cache/kilo/bin",
       "$NONO_CONFIG/profile-drafts",
       { "path": "$HOME/Library/Keychains", "when": "macos" },
