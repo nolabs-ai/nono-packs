@@ -27,6 +27,10 @@ Output that explicitly names nono as the denying sandbox is conclusive. `landloc
    - Suggesting the user run commands manually from another terminal
 3. **Do NOT apologize repeatedly** or suggest you will "try another approach" - there is no other approach.
 
+## Refused nested sandbox (names no path)
+
+`sandbox-exec: sandbox_apply: Operation not permitted`, a `sandbox_init` failure with EPERM, or `forbidden-sandbox-reinit` means a tool tried to start its own macOS sandbox inside nono's sandbox and Seatbelt refused. This denial names no path. Do not run `nono why --path` for it, and do not offer `nono run --allow`, a profile draft, chmod, or sudo: none of them changes the outcome. Tell the user what does: run the tool with its built-in sandbox disabled so nono stays the enforcement boundary (Codex: `nono run --profile <name> -- codex --sandbox danger-full-access --ask-for-approval on-request`), or, if the failing command was itself `nono run`, drop the inner nono because the outer sandbox already applies.
+
 ## Diagnosing the denial
 
 Run `nono why` to understand exactly why the operation was blocked:
