@@ -103,8 +103,8 @@ function buildGuidance(caps: Caps, blockedPath: string | null): string {
     ? `nono why --self --path ${blockedPath} --op read`
     : "nono why --self --path <blocked-path> --op read"
   const allowCmd = blockedPath
-    ? `nono run --allow ${blockedPath} -- opencode`
-    : "nono run --allow <blocked-path> -- opencode"
+    ? `nono run --allow ${blockedPath} -- opencode --standalone`
+    : "nono run --allow <blocked-path> -- opencode --standalone"
 
   return [
     "",
@@ -131,7 +131,7 @@ function buildGuidance(caps: Caps, blockedPath: string | null): string {
     "   Option B (persistent): draft a profile to " + profileDraftsDir() + "/<name>.json",
     "                          extending `opencode`, add the path under `\"allow\"` or `\"read\"`,",
     "                          then tell the user: run `nono profile promote <name>`",
-    "                          and start future sessions with `nono run --profile <name> -- opencode`",
+    "                          and start future sessions with `nono run --profile <name> -- opencode --standalone`",
   ].join("\n")
 }
 
@@ -149,7 +149,7 @@ sudo, chmod, chown, retries, or macOS Full Disk Access cannot grant access that 
 If a tool or shell command fails with "Operation not permitted", "Permission denied", EACCES, EPERM, landlock, or sandbox denied:
 1. Run: nono why --self --path <blocked-path> --op <read|write|readwrite>
 2. Offer the user exactly two options:
-   Option A: nono run --allow /path/to/needed -- opencode
+   Option A: nono run --allow /path/to/needed -- opencode --standalone
    Option B: draft ${profileDraftsDir()}/<name>.json extending "opencode", then have the user run nono profile promote <name>
 
 Credential injection is active for configured routes. Do not read or write API keys directly — nono injects them transparently via its proxy.
