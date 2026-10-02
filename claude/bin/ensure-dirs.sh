@@ -4,12 +4,11 @@
 # Runs on the host with host privileges, before the sandbox is applied.
 # Landlock/Seatbelt can only attach a rule to a path that already exists, and
 # silently drops the grant for one that does not.
+#
+# Only paths that nothing else can create belong here. Anything the pack's
+# install wiring writes, or that the sandbox can create for itself because the
+# profile grants its parent, is left alone.
 set -euo pipefail
-
-mkdir -p \
-  "$HOME/.claude" \
-  "$HOME/.cache/claude" \
-  "$HOME/.local/state/claude/locks"
 
 # Claude Code's cross-session messaging sockets. XDG_RUNTIME_DIR is usually
 # /run/user/1000. If XDG_RUNTIME_DIR isn't set, also the profile rule won't
