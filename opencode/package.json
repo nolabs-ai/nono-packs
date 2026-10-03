@@ -29,6 +29,11 @@
       "install_as": "opencode-base"
     },
     {
+      "type": "profile",
+      "path": "profiles/opencode-v1.json",
+      "install_as": "opencode-v1"
+    },
+    {
       "type": "plugin",
       "path": "README.md"
     },

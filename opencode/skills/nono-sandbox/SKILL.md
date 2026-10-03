@@ -1,7 +1,7 @@
 ---
 name: nono-sandbox
 description: Diagnose confirmed nono sandbox denials for opencode. Generic permission failures require `nono why` or a clear non-sandbox diagnostic outcome before remediation; network diagnostics remain separate.
-version: 1.3.0
+version: 1.4.0
 platforms: [macos, linux]
 ---
 
@@ -136,7 +136,8 @@ Do not read or write API keys directly from inside the sandbox. Prefer nono phan
 
 nono supports running opencode in a detached session that survives terminal disconnects:
 
-    nono run --profile opencode --detach -- opencode --standalone
+    nono run --profile opencode --detach -- opencode --standalone    # v2
+    nono run --profile opencode-v1 --detach -- opencode              # v1
 
 nono prints the session ID on start. Reattach from any terminal:
 
@@ -156,7 +157,8 @@ Detached sessions inherit the same sandbox profile as interactive ones — the s
 
 ## opencode-specific notes
 
-- The base profile appends `--standalone`, ensuring that the OpenCode client and its private tool-executing server run inside the same nono sandbox. Never connect a sandboxed client to an external server with `--server`.
+- The pack ships two launch profiles over a shared `opencode-base`: `opencode` (OpenCode v2) and `opencode-v1` (OpenCode v1, in-process). Match the profile to the installed OpenCode major version.
+- The `opencode` (v2) profile appends `--standalone`, ensuring that the OpenCode client and its private tool-executing server run inside the same nono sandbox. Never connect a sandboxed client to an external server with `--server`.
 - The base profile sets `OPENCODE_DISABLE_PROJECT_CONFIG=1` and `OPENCODE_TEST_HOME=$WORKDIR` to reduce project, home, and instruction discovery outside the workspace. These are compatibility and defense-in-depth settings; OpenCode v2 has not consistently honored the project-config flag in every loader. nono's OS sandbox is the enforcement boundary. Do not remove these settings to work around a denial.
 - Supported discovery paths skip project `opencode.json`/`opencode.jsonc` and project `AGENTS.md`, but affected OpenCode v2 releases may still discover some project configuration or components. Treat workspace content as untrusted and rely on nono to contain loaded code. Global OpenCode configuration and the installed nono plugin remain available.
 - OpenCode may harmlessly probe parent or system directories during startup and leave denied-path notices for paths such as `$HOME`, `$HOME/.config`, `$NONO_CONFIG`, or `/System` even when the session works. Do not grant these broad paths to silence the notices; add a narrow grant only when a required operation actually fails.
@@ -174,6 +176,6 @@ Path references in this skill use `$XDG_CONFIG_HOME`. If that variable is not se
 ## What you should NOT do
 
 - Do not write the profile yourself unless the user explicitly asks for Option B. Present both options first.
-- Do not edit the pack-installed profile at `$XDG_CONFIG_HOME/nono/packages/nolabs-ai/opencode/policy.json` — it is overwritten on every `nono pull`.
+- Do not edit the pack-installed profiles under `$XDG_CONFIG_HOME/nono/packages/nolabs-ai/opencode/profiles/` (`opencode.json`, `opencode-base.json`, `opencode-v1.json`) — they are overwritten on every `nono pull`.
 - Do not retry the failing operation in a different way. The sandbox is OS-enforced; alternative paths, endpoints, or commands hit the same boundary.
 - Do not edit registry-managed package files under `$XDG_CONFIG_HOME/nono/packages`; create a profile extension instead.
