@@ -2,24 +2,42 @@
 
 `opencode` is a `nono` package for [opencode](https://github.com/opencode-ai/opencode).
 
-It installs a sandbox profile, a TypeScript plugin, and a skill that make opencode behave correctly when running inside a `nono` security sandbox — including credential injection, detach/attach session support, and denial diagnostics.
+It installs sandbox profiles (one per OpenCode major version), a TypeScript plugin, and a skill that make opencode behave correctly when running inside a `nono` security sandbox — including credential injection, detach/attach session support, and denial diagnostics.
 
 ## What It Does
 
 The pack provides:
 
-- a sandbox profile (`policy.json`) granting the correct filesystem and network access, with credential injection routes for OpenAI, Anthropic, Gemini, GitHub, and GitLab
+- a shared base profile (`profiles/opencode-base.json`) granting the correct filesystem and network access, with credential injection routes for OpenAI, Anthropic, Gemini, GitHub, and GitLab, extended by the `opencode` (v2, `profiles/opencode-v2.json`) and `opencode-v1` (`profiles/opencode-v1.json`) profiles
 - a `session_hooks.before` hook (`bin/ensure-dirs.sh`) that creates opencode's state directories on the host before the sandbox is applied, so first-run doesn't fail when a directory the profile grants access to doesn't exist yet
 - a TypeScript plugin (`plugin/nono-sandbox.ts`) that injects nono sandbox context at session start, detects denial signatures in tool results, appends capability context and Option A/B remediation guidance, surfaces the network egress allowlist, and registers a `nono_status` tool
 - a `nono-sandbox` skill that teaches the correct diagnostic flow for filesystem and network-egress denials, credential route setup, and detach/attach usage
 
 The plugin supports both the OpenCode v1 and v2 plugin APIs from a single file: OpenCode 1.18.29+ calls its `server()` entrypoint, and OpenCode 2.x calls its `setup()` entrypoint. The v2 path registers the session `context` hook, a `nono_status` tool, and the `tool.execute.after` hook; the v1 path provides the equivalent legacy hooks. Removing the v1 support later is a single deletion of the `server()` binding and its helpers (see the v2 support section below).
 
+## Profiles
+
+The pack ships three profiles: a shared base, and one launch profile per OpenCode major version:
+
+| Profile | OpenCode version | Launch command |
+|---|---|---|
+| `opencode` (pack default) | v2 | `nono run --profile nolabs-ai/opencode -- opencode --standalone` |
+| `opencode-v1` | v1 | `nono run --profile nolabs-ai/opencode-v1 -- opencode` |
+| `opencode-base` | — | shared foundation, extended by both; not a launch target (no `--standalone`, no `OPENCODE_NONO_PROFILE` marker) |
+
+Profiles are referenced by qualified name: `--profile nolabs-ai/opencode` (v2, the pack default) or `--profile nolabs-ai/opencode-v1` (v1). `opencode` is the pack's default profile, so `--profile nolabs-ai/opencode` resolves to it directly.
+
+`opencode-base` (`profiles/opencode-base.json`) carries the filesystem grants, network and credential routes, first-run directory hook, and rollback settings. `opencode` (`profiles/opencode-v2.json`) extends it and adds the v2 isolation settings (below). `opencode-v1` (`profiles/opencode-v1.json`) extends it, adding only the `OPENCODE_NONO_PROFILE=opencode-v1` environment marker, because the OpenCode v1 client, server, and tools run in one process for the default TUI launch — there is no external service to isolate.
+
+Match the profile to the installed OpenCode major version: `opencode` for 2.x, `opencode-v1` for 1.x. The launch profiles set `OPENCODE_NONO_PROFILE` in the sandboxed process so the plugin's remediation guidance (restart commands, profile drafts) targets the right profile.
+
+The first profile artifact in `package.json` determines the pack default, so the v2 profile stays listed first; do not reorder artifacts without re-checking `--profile nolabs-ai/opencode` resolution.
+
 ## OpenCode v2 Sandbox Isolation
 
 OpenCode v2 normally connects clients to a shared background server. That server owns tool execution, plugins, permissions, and network requests, so sandboxing only the client would allow work to escape the active nono session.
 
-The profile contains that risk by:
+The `opencode` profile contains that risk by:
 
 - appending `--standalone` to the OpenCode command, which starts a private server inside the same nono sandbox as the client
 - setting `OPENCODE_DISABLE_PROJECT_CONFIG=1`, which asks supported OpenCode discovery paths to skip project configuration and instructions
@@ -37,6 +55,10 @@ This isolation mode has deliberate compatibility tradeoffs:
 - administrative subcommands that do not accept `--standalone`, such as `serve`, `auth`, or `acp`, may fail when launched through this profile; they are not supported agent launch paths
 
 OpenCode and its runtime may probe parent or system directories during startup. A successful session can therefore end with denied-path notices for paths such as `$HOME`, `$HOME/.config`, `$NONO_CONFIG`, or `/System`. Do not grant those broad paths merely to silence the notices; add a narrower grant only when a required operation actually fails.
+
+## OpenCode v1
+
+`opencode-v1` is for OpenCode 1.x. For the default TUI launch the v1 client, server, and tools run in one process inside the sandbox, so no `--standalone` isolation is needed. That does not apply to v1 subcommands that connect out to an external server (for example `attach <url>`): there, tool execution happens on the external server, outside the sandbox, so they are not supported agent launch paths under this profile — the same rule as v2's `--server`.
 
 ## Behavior
 
@@ -56,13 +78,13 @@ This prevents common bad guidance such as retrying the same action, suggesting `
 
 Landlock and Seatbelt can only grant a filesystem rule for a path that already exists. On a first run, a few state/cache/etc. directories don't exist yet, so the sandboxed opencode process fails immediately.
 
-`policy.json` wires `bin/ensure-dirs.sh` as a `session_hooks.before` hook, which nono runs on the host before applying the sandbox to `mkdir -p` them first. The hook resolves through `$PACK_DIR` to the installed pack directory.
+`profiles/opencode-base.json` wires `bin/ensure-dirs.sh` as a `session_hooks.before` hook, which nono runs on the host before applying the sandbox to `mkdir -p` them first. The hook resolves through `$PACK_DIR` to the installed pack directory.
 
 ## Credential Injection
 
 nono intercepts outbound HTTPS and injects API keys from its keychain — opencode never sees the raw secret. Routes are defined in the profile but **disabled by default**.
 
-To enable a route, create an extending profile:
+To enable a route, create an extending profile (extend `opencode-v1` when using the v1 profile):
 
 ```json
 {
@@ -81,7 +103,8 @@ Store the corresponding secret in the nono keychain under the env-var-shaped acc
 Run opencode in a detached session that survives terminal disconnects:
 
 ```bash
-nono run --profile nolabs-ai/opencode --detach -- opencode --standalone
+nono run --profile nolabs-ai/opencode --detach -- opencode --standalone    # OpenCode v2
+nono run --profile nolabs-ai/opencode-v1 --detach -- opencode              # OpenCode v1
 ```
 
 Reattach from any terminal:
@@ -98,10 +121,13 @@ The `nono_status` tool (registered by the plugin) shows the active session ID an
 nono pull nolabs-ai/opencode
 ```
 
+All three profiles are installed automatically. Use `--profile nolabs-ai/opencode` (v2, the pack default) or `--profile nolabs-ai/opencode-v1` (v1) to select one at runtime.
+
 Or let nono prompt you on first use:
 
 ```bash
-nono run --profile nolabs-ai/opencode -- opencode --standalone
+nono run --profile nolabs-ai/opencode -- opencode --standalone       # OpenCode v2
+nono run --profile nolabs-ai/opencode-v1 -- opencode                 # OpenCode v1
 ```
 
 ## Activation
@@ -128,7 +154,7 @@ nono remove nolabs-ai/opencode
 ## Package Metadata
 
 - Name: `opencode`
-- Version: `0.3.0`
+- Version: `0.4.0`
 - Pack type: `agent`
 - Platforms: `macos`, `linux`
 - License: `Apache-2.0`

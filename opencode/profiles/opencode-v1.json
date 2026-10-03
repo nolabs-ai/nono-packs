@@ -1,0 +1,14 @@
+{
+  "extends": "opencode-base",
+  "meta": {
+    "name": "opencode-v1",
+    "version": "1.0.0",
+    "description": "Profile for sandboxed OpenCode v1 sessions. The client, server, and tools run in one process, so no standalone server isolation is needed.",
+    "author": "nolabs-ai"
+  },
+  "environment": {
+    "set_vars": {
+      "OPENCODE_NONO_PROFILE": "opencode-v1"
+    }
+  }
+}

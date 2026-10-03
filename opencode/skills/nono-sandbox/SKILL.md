@@ -1,18 +1,18 @@
 ---
 name: nono-sandbox
 description: Diagnose confirmed nono sandbox denials for opencode. Generic permission failures require `nono why` or a clear non-sandbox diagnostic outcome before remediation; network diagnostics remain separate.
-version: 1.3.0
+version: 1.4.0
 platforms: [macos, linux]
 ---
 
 Only output that explicitly names nono as the denying sandbox is conclusive by itself. `landlock` and `sandbox: deny` signal sandbox enforcement but do not identify its provenance; generic EPERM, EACCES, "Operation not permitted", and "Permission denied" are also ambiguous. With a concrete path, run `nono why --self --path <blocked-path> --op <needed-op>`; a successful result with status `DENIED` confirms the nono boundary, even when the reason is `path_not_granted` and no policy source is reported. If no path is available or `nono why` does not successfully report `DENIED`, report: `Nono sandbox unconfirmed; this permission failure needs a non-sandbox diagnosis.` Do not suggest sudo, chmod, or system permission changes, and offer the two options below, only after nono is confirmed:
 
-- **Option A (quick fix):** restart with the user-provided active profile: `nono run --profile <active-profile> --allow /path/to/needed -- opencode --standalone`
-- **Option B (persistent fix):** draft a profile to `$XDG_CONFIG_HOME/nono/profile-drafts/<name>.json` extending `<active-profile>`, add the path under `"allow"` or `"read"`, then tell the user to run `nono profile promote <name>` and start sessions with `nono run --profile <name> -- opencode --standalone`
+- **Option A (quick fix):** restart with the user-provided active profile: `nono run --profile <active-profile> --allow /path/to/needed -- opencode` (append `--standalone` when the active profile is `opencode`; the `opencode-v1` profile launches plain `opencode`)
+- **Option B (persistent fix):** draft a profile to `$XDG_CONFIG_HOME/nono/profile-drafts/<name>.json` extending `<active-profile>`, add the path under `"allow"` or `"read"`, then tell the user to run `nono profile promote <name>` and start sessions with `nono run --profile <name> -- opencode` (same `--standalone` rule as Option A)
 
 # Working inside a nono sandbox
 
-The user has launched you with `nono run --profile <name> -- opencode --standalone`. nono enforces filesystem and network limits at the OS level (Landlock on Linux, Seatbelt on macOS). These are kernel-enforced boundaries — retries or workarounds inside opencode cannot grant access that nono hasn't already permitted.
+The user has launched you with `nono run --profile <name> -- opencode` (plus `--standalone` when the profile is the v2 `opencode` profile; the v1 `opencode-v1` profile never takes it). nono enforces filesystem and network limits at the OS level (Landlock on Linux, Seatbelt on macOS). These are kernel-enforced boundaries — retries or workarounds inside opencode cannot grant access that nono hasn't already permitted.
 
 ## Identifying a sandbox denial
 
@@ -46,7 +46,7 @@ If `NONO_CAP_FILE` is set, inspect the full capability set:
 
 ### Option A — quick fix (one-off)
 
-Exit opencode and restart with only the access actually needed. Never default to `--allow` (read+write) when the denial was read-only or write-only:
+Exit opencode and restart with only the access actually needed. Never default to `--allow` (read+write) when the denial was read-only or write-only. Replace `--standalone` with nothing when the active profile is `opencode-v1`:
 
     nono run --read /path/to/needed -- opencode --standalone    # read-only access
     nono run --write /path/to/needed -- opencode --standalone   # write-only access
@@ -77,7 +77,7 @@ For a single file rather than a directory, use `"allow_file"` / `"read_file"` / 
 
 After drafting, tell the user:
 
-    Drafted profile <chosen-name>. Run `nono profile promote <chosen-name>` to review and apply, then start sessions with `nono run --profile <chosen-name> -- opencode --standalone`.
+    Drafted profile <chosen-name>. Run `nono profile promote <chosen-name>` to review and apply, then start sessions with `nono run --profile <chosen-name> -- opencode` (append `--standalone` only when the new profile extends the v2 `opencode` profile).
 
 ## Network egress denials
 
@@ -87,7 +87,7 @@ If a host is genuinely needed, present the same two options as for filesystem de
 
 ### Option A — quick fix (one-off)
 
-    nono run --allow-domain api.example.com -- opencode --standalone
+    nono run --allow-domain api.example.com -- opencode --standalone   # no --standalone for opencode-v1
 
 `--allow-domain` is repeatable and accepts a plain hostname for unrestricted access, or a URL with a path glob to restrict to specific endpoints (e.g. `https://github.com/org/**`).
 
@@ -101,7 +101,7 @@ Add the host to `network.allow_domain` in a profile draft extending the active p
       "network": { "allow_domain": ["api.example.com"] }
     }
 
-Then tell the user to run `nono profile promote <chosen-name>` and start sessions with `nono run --profile <chosen-name> -- opencode --standalone`.
+Then tell the user to run `nono profile promote <chosen-name>` and start sessions with `nono run --profile <chosen-name> -- opencode` (append `--standalone` only when the new profile extends the v2 `opencode` profile).
 
 ## Validating the new profile
 
@@ -136,7 +136,8 @@ Do not read or write API keys directly from inside the sandbox. Prefer nono phan
 
 nono supports running opencode in a detached session that survives terminal disconnects:
 
-    nono run --profile opencode --detach -- opencode --standalone
+    nono run --profile opencode --detach -- opencode --standalone    # v2
+    nono run --profile opencode-v1 --detach -- opencode              # v1
 
 nono prints the session ID on start. Reattach from any terminal:
 
@@ -156,8 +157,10 @@ Detached sessions inherit the same sandbox profile as interactive ones — the s
 
 ## opencode-specific notes
 
-- The base profile appends `--standalone`, ensuring that the OpenCode client and its private tool-executing server run inside the same nono sandbox. Never connect a sandboxed client to an external server with `--server`.
-- The base profile sets `OPENCODE_DISABLE_PROJECT_CONFIG=1` and `OPENCODE_TEST_HOME=$WORKDIR` to reduce project, home, and instruction discovery outside the workspace. These are compatibility and defense-in-depth settings; OpenCode v2 has not consistently honored the project-config flag in every loader. nono's OS sandbox is the enforcement boundary. Do not remove these settings to work around a denial.
+- The pack ships two launch profiles over a shared `opencode-base`: `opencode` (OpenCode v2) and `opencode-v1` (OpenCode v1, in-process). Match the profile to the installed OpenCode major version — `opencode-v1` never takes `--standalone`, and `opencode` always appends it.
+- The `opencode` (v2) profile appends `--standalone`, ensuring that the OpenCode client and its private tool-executing server run inside the same nono sandbox. Never connect a sandboxed client to an external server with `--server`.
+- The `opencode` (v2) profile sets `OPENCODE_DISABLE_PROJECT_CONFIG=1` and `OPENCODE_TEST_HOME=$WORKDIR` to reduce project, home, and instruction discovery outside the workspace. These are compatibility and defense-in-depth settings; OpenCode v2 has not consistently honored the project-config flag in every loader. nono's OS sandbox is the enforcement boundary. Do not remove these settings to work around a denial.
+- The active profile name is available in-process as `OPENCODE_NONO_PROFILE` (`opencode` or `opencode-v1`) set by the profile's environment.
 - Supported discovery paths skip project `opencode.json`/`opencode.jsonc` and project `AGENTS.md`, but affected OpenCode v2 releases may still discover some project configuration or components. Treat workspace content as untrusted and rely on nono to contain loaded code. Global OpenCode configuration and the installed nono plugin remain available.
 - OpenCode may harmlessly probe parent or system directories during startup and leave denied-path notices for paths such as `$HOME`, `$HOME/.config`, `$NONO_CONFIG`, or `/System` even when the session works. Do not grant these broad paths to silence the notices; add a narrow grant only when a required operation actually fails.
 - `OPENCODE_TEST_HOME` is an undocumented compatibility mechanism. If an OpenCode upgrade causes parent-path denials or instruction-initialization failures, report a pack compatibility issue instead of granting access to the user's entire home directory.
@@ -174,6 +177,6 @@ Path references in this skill use `$XDG_CONFIG_HOME`. If that variable is not se
 ## What you should NOT do
 
 - Do not write the profile yourself unless the user explicitly asks for Option B. Present both options first.
-- Do not edit the pack-installed profile at `$XDG_CONFIG_HOME/nono/packages/nolabs-ai/opencode/policy.json` — it is overwritten on every `nono pull`.
+- Do not edit the pack-installed profiles under `$XDG_CONFIG_HOME/nono/packages/nolabs-ai/opencode/profiles/` (`opencode.json`, `opencode-base.json`, `opencode-v1.json`) — they are overwritten on every `nono pull`.
 - Do not retry the failing operation in a different way. The sandbox is OS-enforced; alternative paths, endpoints, or commands hit the same boundary.
 - Do not edit registry-managed package files under `$XDG_CONFIG_HOME/nono/packages`; create a profile extension instead.

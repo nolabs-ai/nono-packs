@@ -1,0 +1,19 @@
+{
+  "extends": "opencode-base",
+  "meta": {
+    "name": "opencode",
+    "version": "1.2.0",
+    "description": "Profile for sandboxed OpenCode v2 sessions. Appends --standalone so the private tool-executing server runs inside the same nono sandbox.",
+    "author": "nolabs-ai"
+  },
+  "environment": {
+    "set_vars": {
+      "OPENCODE_DISABLE_PROJECT_CONFIG": "1",
+      "OPENCODE_TEST_HOME": "$WORKDIR",
+      "OPENCODE_NONO_PROFILE": "opencode"
+    }
+  },
+  "command_args": [
+    "--standalone"
+  ]
+}

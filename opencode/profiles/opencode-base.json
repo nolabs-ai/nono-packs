@@ -1,9 +1,9 @@
 {
   "extends": "default",
   "meta": {
-    "name": "opencode",
-    "version": "1.1.0",
-    "description": "opencode AI coding assistant (registry-managed)",
+    "name": "opencode-base",
+    "version": "1.0.0",
+    "description": "Base profile for sandboxed OpenCode sessions. Extended by opencode (OpenCode v2, standalone server) and opencode-v1 (OpenCode v1, in-process).",
     "author": "nolabs-ai"
   },
   "groups": {
@@ -100,15 +100,6 @@
   "workdir": {
     "access": "readwrite"
   },
-  "environment": {
-    "set_vars": {
-      "OPENCODE_DISABLE_PROJECT_CONFIG": "1",
-      "OPENCODE_TEST_HOME": "$WORKDIR"
-    }
-  },
-  "command_args": [
-    "--standalone"
-  ],
   "session_hooks": {
     "before": {
       "script": "$PACK_DIR/bin/ensure-dirs.sh",

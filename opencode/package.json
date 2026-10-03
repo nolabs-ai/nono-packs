@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "name": "opencode",
-  "version": "0.3.0",
-  "description": "opencode plugin and matching nono profile. Provides sandbox-aware diagnostics, credential injection, detach/attach support, and a nono_status tool when running inside a nono sandbox.",
+  "version": "0.4.0",
+  "description": "opencode plugin and matching nono profiles (opencode for OpenCode v2 standalone, opencode-v1 for in-process v1). Provides sandbox-aware diagnostics, credential injection, detach/attach support, and a nono_status tool when running inside a nono sandbox.",
   "license": "Apache-2.0",
   "platforms": [
     "macos",
@@ -20,8 +20,18 @@
   "artifacts": [
     {
       "type": "profile",
-      "path": "policy.json",
+      "path": "profiles/opencode-v2.json",
       "install_as": "opencode"
+    },
+    {
+      "type": "profile",
+      "path": "profiles/opencode-base.json",
+      "install_as": "opencode-base"
+    },
+    {
+      "type": "profile",
+      "path": "profiles/opencode-v1.json",
+      "install_as": "opencode-v1"
     },
     {
       "type": "plugin",
