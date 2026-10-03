@@ -9,7 +9,8 @@
   "environment": {
     "set_vars": {
       "OPENCODE_DISABLE_PROJECT_CONFIG": "1",
-      "OPENCODE_TEST_HOME": "$WORKDIR"
+      "OPENCODE_TEST_HOME": "$WORKDIR",
+      "OPENCODE_NONO_PROFILE": "opencode"
     }
   },
   "command_args": [

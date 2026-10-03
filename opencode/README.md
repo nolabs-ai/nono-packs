@@ -23,13 +23,13 @@ The pack ships three profiles: a shared base, and one launch profile per OpenCod
 |---|---|---|
 | `opencode` (pack default) | v2 | `nono run --profile nolabs-ai/opencode -- opencode --standalone` |
 | `opencode-v1` | v1 | `nono run --profile nolabs-ai/opencode-v1 -- opencode` |
-| `opencode-base` | — | shared foundation, extended by both; not a launch target (no `--standalone`) |
+| `opencode-base` | — | shared foundation, extended by both; not a launch target (no `--standalone`, no `OPENCODE_NONO_PROFILE` marker) |
 
 Profiles are referenced by qualified name: `--profile nolabs-ai/opencode` (v2, the pack default) or `--profile nolabs-ai/opencode-v1` (v1). `opencode` is the pack's default profile, so `--profile nolabs-ai/opencode` resolves to it directly.
 
-`opencode-base` (`profiles/opencode-base.json`) carries the filesystem grants, network and credential routes, first-run directory hook, and rollback settings. `opencode` (`profiles/opencode-v2.json`) extends it and adds the v2 isolation settings (below). `opencode-v1` (`profiles/opencode-v1.json`) extends it with no additions, because the OpenCode v1 client, server, and tools run in one process for the default TUI launch — there is no external service to isolate.
+`opencode-base` (`profiles/opencode-base.json`) carries the filesystem grants, network and credential routes, first-run directory hook, and rollback settings. `opencode` (`profiles/opencode-v2.json`) extends it and adds the v2 isolation settings (below). `opencode-v1` (`profiles/opencode-v1.json`) extends it, adding only the `OPENCODE_NONO_PROFILE=opencode-v1` environment marker, because the OpenCode v1 client, server, and tools run in one process for the default TUI launch — there is no external service to isolate.
 
-Match the profile to the installed OpenCode major version: `opencode` for 2.x, `opencode-v1` for 1.x.
+Match the profile to the installed OpenCode major version: `opencode` for 2.x, `opencode-v1` for 1.x. The launch profiles set `OPENCODE_NONO_PROFILE` in the sandboxed process so the plugin's remediation guidance (restart commands, profile drafts) targets the right profile.
 
 The first profile artifact in `package.json` determines the pack default, so the v2 profile stays listed first; do not reorder artifacts without re-checking `--profile nolabs-ai/opencode` resolution.
 
@@ -154,7 +154,7 @@ nono remove nolabs-ai/opencode
 ## Package Metadata
 
 - Name: `opencode`
-- Version: `0.3.0`
+- Version: `0.4.0`
 - Pack type: `agent`
 - Platforms: `macos`, `linux`
 - License: `Apache-2.0`

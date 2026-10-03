@@ -54,6 +54,18 @@ function profileDraftsDir(): string {
   return nonoConfigHome() + "/profile-drafts"
 }
 
+function activeProfile(): string {
+  return process.env.OPENCODE_NONO_PROFILE ?? "opencode"
+}
+
+// Restart suffix for opencode launch commands. Only the v2 profile appends
+// --standalone (private in-sandbox server); the v1 profile launches the
+// in-process binary without it. Derive it from the live invocation so a
+// custom extension of either profile gets the right command.
+function launchSuffix(): string {
+  return process.argv.includes("--standalone") ? " --standalone" : ""
+}
+
 function buildCredentialLines(caps: Caps): string {
   const routes = caps.credentials ?? {}
   const keys = Object.keys(routes)
@@ -103,8 +115,8 @@ function buildGuidance(caps: Caps, blockedPath: string | null): string {
     ? `nono why --self --path ${blockedPath} --op read`
     : "nono why --self --path <blocked-path> --op read"
   const allowCmd = blockedPath
-    ? `nono run --allow ${blockedPath} -- opencode --standalone`
-    : "nono run --allow <blocked-path> -- opencode --standalone"
+    ? `nono run --profile ${activeProfile()} --allow ${blockedPath} -- opencode${launchSuffix()}`
+    : `nono run --profile ${activeProfile()} --allow <blocked-path> -- opencode${launchSuffix()}`
 
   return [
     "",
@@ -129,9 +141,9 @@ function buildGuidance(caps: Caps, blockedPath: string | null): string {
     "2. Present the user with exactly these two options:",
     "   Option A (quick fix):  " + allowCmd,
     "   Option B (persistent): draft a profile to " + profileDraftsDir() + "/<name>.json",
-    "                          extending `opencode`, add the path under `\"allow\"` or `\"read\"`,",
+    "                          extending `" + activeProfile() + "`, add the path under `\"allow\"` or `\"read\"`,",
     "                          then tell the user: run `nono profile promote <name>`",
-    "                          and start future sessions with `nono run --profile <name> -- opencode --standalone`",
+    "                          and start future sessions with `nono run --profile <name> -- opencode" + launchSuffix() + "`",
   ].join("\n")
 }
 
@@ -149,8 +161,8 @@ sudo, chmod, chown, retries, or macOS Full Disk Access cannot grant access that 
 If a tool or shell command fails with "Operation not permitted", "Permission denied", EACCES, EPERM, landlock, or sandbox denied:
 1. Run: nono why --self --path <blocked-path> --op <read|write|readwrite>
 2. Offer the user exactly two options:
-   Option A: nono run --allow /path/to/needed -- opencode --standalone
-   Option B: draft ${profileDraftsDir()}/<name>.json extending "opencode", then have the user run nono profile promote <name>
+   Option A: nono run --profile ${activeProfile()} --allow /path/to/needed -- opencode${launchSuffix()}
+   Option B: draft ${profileDraftsDir()}/<name>.json extending "${activeProfile()}", then have the user run nono profile promote <name>
 
 Credential injection is active for configured routes. Do not read or write API keys directly — nono injects them transparently via its proxy.
 
