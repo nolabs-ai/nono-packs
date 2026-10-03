@@ -20,8 +20,13 @@
   "artifacts": [
     {
       "type": "profile",
-      "path": "policy.json",
+      "path": "profiles/opencode-v2.json",
       "install_as": "opencode"
+    },
+    {
+      "type": "profile",
+      "path": "profiles/opencode-base.json",
+      "install_as": "opencode-base"
     },
     {
       "type": "plugin",

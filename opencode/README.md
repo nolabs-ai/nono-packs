@@ -8,7 +8,7 @@ It installs a sandbox profile, a TypeScript plugin, and a skill that make openco
 
 The pack provides:
 
-- a sandbox profile (`policy.json`) granting the correct filesystem and network access, with credential injection routes for OpenAI, Anthropic, Gemini, GitHub, and GitLab
+- a shared base profile (`profiles/opencode-base.json`) granting the correct filesystem and network access, with credential injection routes for OpenAI, Anthropic, Gemini, GitHub, and GitLab, extended by the `opencode` (v2, `profiles/opencode-v2.json`) profile
 - a `session_hooks.before` hook (`bin/ensure-dirs.sh`) that creates opencode's state directories on the host before the sandbox is applied, so first-run doesn't fail when a directory the profile grants access to doesn't exist yet
 - a TypeScript plugin (`plugin/nono-sandbox.ts`) that injects nono sandbox context at session start, detects denial signatures in tool results, appends capability context and Option A/B remediation guidance, surfaces the network egress allowlist, and registers a `nono_status` tool
 - a `nono-sandbox` skill that teaches the correct diagnostic flow for filesystem and network-egress denials, credential route setup, and detach/attach usage
@@ -19,7 +19,7 @@ The plugin supports both the OpenCode v1 and v2 plugin APIs from a single file: 
 
 OpenCode v2 normally connects clients to a shared background server. That server owns tool execution, plugins, permissions, and network requests, so sandboxing only the client would allow work to escape the active nono session.
 
-The profile contains that risk by:
+The `opencode` profile contains that risk by:
 
 - appending `--standalone` to the OpenCode command, which starts a private server inside the same nono sandbox as the client
 - setting `OPENCODE_DISABLE_PROJECT_CONFIG=1`, which asks supported OpenCode discovery paths to skip project configuration and instructions
@@ -56,7 +56,7 @@ This prevents common bad guidance such as retrying the same action, suggesting `
 
 Landlock and Seatbelt can only grant a filesystem rule for a path that already exists. On a first run, a few state/cache/etc. directories don't exist yet, so the sandboxed opencode process fails immediately.
 
-`policy.json` wires `bin/ensure-dirs.sh` as a `session_hooks.before` hook, which nono runs on the host before applying the sandbox to `mkdir -p` them first. The hook resolves through `$PACK_DIR` to the installed pack directory.
+`profiles/opencode-base.json` wires `bin/ensure-dirs.sh` as a `session_hooks.before` hook, which nono runs on the host before applying the sandbox to `mkdir -p` them first. The hook resolves through `$PACK_DIR` to the installed pack directory.
 
 ## Credential Injection
 
