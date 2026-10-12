@@ -17,6 +17,7 @@ on:
       - "mistral-vibe/**"
       - "openclaw/**"
       - "opencode/**"
+      - "opencode-v1/**"
       - "omp/**"
       - "pi/**"
   pull_request:
@@ -34,6 +35,7 @@ on:
       - "mistral-vibe/**"
       - "openclaw/**"
       - "opencode/**"
+      - "opencode-v1/**"
       - "omp/**"
       - "pi/**"
 

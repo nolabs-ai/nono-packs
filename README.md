@@ -38,6 +38,8 @@ Current packs in this repository include:
 - [`kilo`](./kilo): Kilo Code CLI agent profile and skill for working inside the `nono` sandbox
 - [`kimchi`](./kimchi): Kimchi Coding Agent package and profile for working inside the `nono` sandbox
 - [`mistral-vibe`](./mistral-vibe): Mistral Vibe CLI profile and sandbox-aware skill for working inside the `nono` sandbox
+- [`opencode`](./opencode): OpenCode v2 integration using an isolated standalone server
+- [`opencode-v1`](./opencode-v1): OpenCode v1 integration based on the last known-working v1 profile
 - [`omp`](./omp): Oh My Pi coding harness plugin and profile for working inside the `nono` sandbox
 - [`pi`](./pi): Pi Coding Agent package and profile for working inside the `nono` sandbox
 
