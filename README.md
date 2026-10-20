@@ -36,6 +36,7 @@ Current packs in this repository include:
 - [`deepseek`](./deepseek): DeepSeek Harness (`dsh`) CLI agent profile and skill for working inside the `nono` sandbox
 - [`goose`](./goose): Goose CLI profile and Open Plugin for working inside the `nono` sandbox
 - [`kilo`](./kilo): Kilo Code CLI agent profile and skill for working inside the `nono` sandbox
+- [`maki`](./maki): Maki CLI agent profile and skill for working inside the `nono` sandbox
 - [`kimchi`](./kimchi): Kimchi Coding Agent package and profile for working inside the `nono` sandbox
 - [`mistral-vibe`](./mistral-vibe): Mistral Vibe CLI profile and sandbox-aware skill for working inside the `nono` sandbox
 - [`opencode`](./opencode): OpenCode v2 integration using an isolated standalone server
