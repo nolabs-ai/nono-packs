@@ -1,9 +1,27 @@
+import { spawnSync } from "child_process"
 import * as fs from "fs"
+import * as path from "path"
 
 const DENIAL_PATTERN =
   /operation not permitted|permission denied|eperm|eacces|sandbox.*denied|landlock/i
 
-const PATH_RE = /(?:~\/|\/)[^\s"'`,;:]+/
+// Matches an absolute or home-relative path only at a token boundary (start
+// of text, whitespace, or a quote/bracket). Anchoring matters: the previous
+// unanchored pattern matched the first "/" inside a relative path, so
+// "src/main.ts" fabricated the root-absolute path "/main.ts".
+const ABS_PATH_RE = /(?:^|[\s"'`([{])((?:~\/|\/)[^\s"'`,;:]+)/
+
+// Matches a complete relative path token ("src/main.ts",
+// "./.opencode/package.json") so it can be resolved whole instead of being
+// mistaken for an absolute path fragment.
+const REL_PATH_RE = /(?:^|[\s"'`([{])((?:\.{1,2}\/)?[\w.-]+(?:\/[\w.-]+)+)/
+
+// Appended when a failure looks like a permission denial but nono's role
+// could not be confirmed. Mirrors the packs' shared guidance: without
+// confirmation, do not present the failure as a sandbox denial or offer
+// sandbox grants as the remedy.
+const UNCONFIRMED_NOTE =
+  "\n\n[nono sandbox] Nono sandbox unconfirmed; this permission failure needs a non-sandbox diagnosis."
 
 const NONO_STATUS_DESCRIPTION = "Show nono sandbox status for this opencode session"
 
@@ -37,13 +55,63 @@ function readCaps(): Caps | null {
 }
 
 function extractPath(text: string): string | null {
-  const match = PATH_RE.exec(text)
-  if (!match) return null
-  let candidate = match[0].replace(/[).\]]+$/, "")
-  if (candidate.startsWith("~/")) {
-    candidate = (process.env.HOME ?? "~") + "/" + candidate.slice(2)
+  const abs = ABS_PATH_RE.exec(text)
+  if (abs) {
+    const candidate = abs[1].replace(/[).\]]+$/, "")
+    if (candidate.startsWith("~/")) {
+      const expanded = (process.env.HOME ?? "~") + "/" + candidate.slice(2)
+      return expanded.length > 1 ? expanded : null
+    }
+    if (candidate.length > 1) return candidate
   }
-  return candidate || null
+  const rel = REL_PATH_RE.exec(text)
+  if (rel) {
+    const candidate = rel[1].replace(/[).\]]+$/, "")
+    // Reject slash-containing words that are not plausible paths ("and/or",
+    // "example.com/a/b"): a relative path token either starts with a dot
+    // segment (".opencode/...", "./...", "../...") or ends in a file-like
+    // segment carrying an extension.
+    const segments = candidate.split("/")
+    const last = segments[segments.length - 1]
+    if (candidate.startsWith(".") || last.includes(".")) {
+      return path.resolve(process.cwd(), candidate)
+    }
+  }
+  return null
+}
+
+// Confirm with nono itself that the sandbox denies this path before any
+// grant remediation is offered. `nono why --self` prints DENIED or ALLOWED
+// as its first output line. Any failure to run or parse the check counts as
+// unconfirmed: an unconfirmed failure must not be presented as a nono
+// denial.
+function confirmNonoDenial(blockedPath: string): boolean {
+  try {
+    const res = spawnSync("nono", ["why", "--self", "--path", blockedPath, "--op", "read"], {
+      encoding: "utf8",
+      timeout: 5000,
+    })
+    if (res.error || typeof res.stdout !== "string") return false
+    const firstLine = res.stdout
+      .replace(/\x1b\[[0-9;]*m/g, "")
+      .split("\n")
+      .map(l => l.trim())
+      .find(l => l.length > 0)
+    return firstLine === "DENIED"
+  } catch {
+    return false
+  }
+}
+
+// A concrete path is only ever confirmed by `nono why` reporting DENIED for
+// it. The word "nono" in the error text proves nothing about a path — it
+// appears in paths themselves (including nono's own config directory, e.g.
+// ~/.config/nono/profiles/...) and must never skip the provenance check.
+// Only when no path could be extracted does error output that explicitly
+// names nono count as self-attributed.
+function isConfirmedDenial(text: string, blockedPath: string | null): boolean {
+  if (blockedPath) return confirmNonoDenial(blockedPath)
+  return /\bnono\b/i.test(text)
 }
 
 function nonoConfigHome(): string {
@@ -242,20 +310,27 @@ function v1Hooks() {
       },
     },
 
-    // Fires after every tool call. When the result contains a denial
-    // signature we append capability context and Option A/B remediation.
+    // Fires after every tool call. The v1 result carries no structured
+    // status, so the result text is scanned for a denial signature — but
+    // grant remediation is appended only once `nono why --self` reports
+    // DENIED for the extracted path. With no extractable path there is
+    // nothing to provenance-check, and the word fallback cannot confirm
+    // anything here: v1 cannot distinguish a failed call from a successful
+    // result whose content merely mentions nono and a denial, so nothing
+    // is appended — a false notice is worse than none.
     "tool.execute.after": async (
       input: { tool: string; sessionID: string; callID: string; args: unknown },
       result: unknown,
     ) => {
-      if (!DENIAL_PATTERN.test(JSON.stringify(result))) return
+      const resultText = JSON.stringify(result)
+      if (!DENIAL_PATTERN.test(resultText)) return
 
       const liveCaps = readCaps()
       if (!liveCaps) return
 
-      const inputText = JSON.stringify(input)
-      const resultText = JSON.stringify(result)
-      const blockedPath = extractPath(inputText) ?? extractPath(resultText)
+      const blockedPath = extractPath(JSON.stringify(input)) ?? extractPath(resultText)
+      if (!blockedPath) return
+      if (!confirmNonoDenial(blockedPath)) return
 
       appendGuidance(result, buildGuidance(liveCaps, blockedPath))
     },
@@ -318,31 +393,31 @@ export default {
       })
     })
 
-    // Fires after every tool call. When the event carries a denial
-    // signature we append capability context and Option A/B remediation to
-    // the result the model will see. We match on the whole event (input +
-    // result) rather than just the result, unlike the v1 path, so a blocked
-    // path can be recovered from the tool input when the result is generic.
+    // Fires after every tool call. Detection is driven by the structured
+    // outcome, never by scanning content: only error events are examined,
+    // and only their error payload. A successful result is data — a file
+    // that merely mentions "EPERM" or "permission denied" must not draw a
+    // sandbox-denial notice. Before grant remediation is appended, nono's
+    // role is confirmed (the error names nono, or `nono why --self` reports
+    // DENIED for the extracted path); unconfirmed failures get a short note
+    // saying so instead of definitive sandbox guidance.
     await ctx.tool.hook("execute.after", (event: any) => {
-      if (!DENIAL_PATTERN.test(JSON.stringify(event))) return
+      if (event.status !== "error") return
+
+      const errorText = JSON.stringify(event.error ?? "")
+      if (!DENIAL_PATTERN.test(errorText)) return
 
       const liveCaps = readCaps()
       if (!liveCaps) return
 
-      const inputText = JSON.stringify(event.input)
-      const resultText =
-        event.status === "error" ? JSON.stringify(event.error) : JSON.stringify(event.result)
-      const blockedPath = extractPath(inputText) ?? extractPath(resultText)
-      const guidance = buildGuidance(liveCaps, blockedPath)
+      const blockedPath =
+        extractPath(errorText) ?? extractPath(JSON.stringify(event.input ?? ""))
+      const note = isConfirmedDenial(errorText, blockedPath)
+        ? buildGuidance(liveCaps, blockedPath)
+        : UNCONFIRMED_NOTE
 
-      if (event.status === "error") {
-        if (event.error && typeof event.error.message === "string") {
-          event.error.message += guidance
-        }
-        return
-      }
-      if (event.result && typeof event.result === "object") {
-        event.result.content = appendContentGuidance(event.result.content, guidance)
+      if (event.error && typeof event.error.message === "string") {
+        event.error.message += note
       }
     })
   },
