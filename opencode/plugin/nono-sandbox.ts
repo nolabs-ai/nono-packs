@@ -85,9 +85,36 @@ function extractPath(text: string): string | null {
 // as its first output line. Any failure to run or parse the check counts as
 // unconfirmed: an unconfirmed failure must not be presented as a nono
 // denial.
-function confirmNonoDenial(blockedPath: string): boolean {
+type NonoOp = "read" | "write"
+
+// Derive the operation a failing tool was attempting, so the provenance
+// check asks the right question: a write denial on a read-allowed path
+// answers ALLOWED to `--op read` and would be misread as unconfirmed —
+// in v2 the failure then draws a "non-sandbox diagnosis" note, and in v1
+// no notice at all. Tools whose operation cannot be inferred (bash or
+// anything else) keep the historical default of "read".
+function opForTool(tool: string | null): NonoOp {
+  switch (tool) {
+    case "write":
+    case "edit":
+      return "write"
+    default:
+      return "read"
+  }
+}
+
+// The v2 hook event carries the tool name at the top level or on its
+// input object depending on the runtime; read it defensively and fall
+// back to the default op when it is absent.
+function toolNameOf(event: any): string | null {
+  if (typeof event?.tool === "string") return event.tool
+  if (typeof event?.input?.tool === "string") return event.input.tool
+  return null
+}
+
+function confirmNonoDenial(blockedPath: string, op: NonoOp = "read"): boolean {
   try {
-    const res = spawnSync("nono", ["why", "--self", "--path", blockedPath, "--op", "read"], {
+    const res = spawnSync("nono", ["why", "--self", "--path", blockedPath, "--op", op], {
       encoding: "utf8",
       timeout: 5000,
     })
@@ -109,8 +136,8 @@ function confirmNonoDenial(blockedPath: string): boolean {
 // ~/.config/nono/profiles/...) and must never skip the provenance check.
 // Only when no path could be extracted does error output that explicitly
 // names nono count as self-attributed.
-function isConfirmedDenial(text: string, blockedPath: string | null): boolean {
-  if (blockedPath) return confirmNonoDenial(blockedPath)
+function isConfirmedDenial(text: string, blockedPath: string | null, op: NonoOp = "read"): boolean {
+  if (blockedPath) return confirmNonoDenial(blockedPath, op)
   return /\bnono\b/i.test(text)
 }
 
@@ -160,7 +187,7 @@ function buildEgressGuidance(caps: Caps): string {
   ].join("\n")
 }
 
-function buildGuidance(caps: Caps, blockedPath: string | null): string {
+function buildGuidance(caps: Caps, blockedPath: string | null, op: NonoOp = "read"): string {
   const pathLines =
     (caps.fs ?? [])
       .map(e => "  " + (e.resolved ?? e.path) + " (" + e.access + ")")
@@ -168,8 +195,8 @@ function buildGuidance(caps: Caps, blockedPath: string | null): string {
   const net = caps.net_blocked ? "blocked" : "allowed"
   const display = blockedPath ?? "<blocked-path>"
   const whyCmd = blockedPath
-    ? `nono why --self --path ${blockedPath} --op read`
-    : "nono why --self --path <blocked-path> --op read"
+    ? `nono why --self --path ${blockedPath} --op ${op}`
+    : `nono why --self --path <blocked-path> --op ${op}`
   const allowCmd = blockedPath
     ? `nono run --allow ${blockedPath} -- opencode --standalone`
     : "nono run --allow <blocked-path> -- opencode --standalone"
@@ -309,8 +336,9 @@ export default {
 
       const blockedPath =
         extractPath(errorText) ?? extractPath(JSON.stringify(event.input ?? ""))
-      const note = isConfirmedDenial(errorText, blockedPath)
-        ? buildGuidance(liveCaps, blockedPath)
+      const op = opForTool(toolNameOf(event))
+      const note = isConfirmedDenial(errorText, blockedPath, op)
+        ? buildGuidance(liveCaps, blockedPath, op)
         : UNCONFIRMED_NOTE
 
       if (event.error && typeof event.error.message === "string") {
