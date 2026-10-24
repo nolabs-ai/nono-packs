@@ -40,7 +40,7 @@ Ask the user before suggesting a profile expansion that grants access to:
 ## Useful Goose-Specific Checks
 
 - Hooks receive JSON on stdin. If a hook fails, inspect the hook command, plugin root, and matched event.
-- Open Plugins are discovered from `~/.agents/plugins/<plugin-name>` and project `.agents/plugins/<plugin-name>`.
-- Plugin-provided skills are namespaced as `<plugin-name>:<skill-name>`.
+- Skills are discovered from `~/.agents/skills/`, `~/.config/goose/skills/`, and the project's `.goose/skills/` or `.agents/skills/`.
+- The nono pack sets `GOOSE_MOIM_MESSAGE_TEXT` so every turn carries a short sandbox notice. This needs Goose's built-in "Top Of Mind" (`tom`) extension, which is on by default.
 - Goose config is YAML and extension configuration lives under the `extensions` key.
 - Recipes and subrecipes can start repeatable workflows; make sure their required files and commands are covered by the active nono profile before running unattended.

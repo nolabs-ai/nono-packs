@@ -68,6 +68,11 @@
     "allow_localhost": true
   },
   "allow_launch_services": true,
+  "environment": {
+    "set_vars": {
+      "GOOSE_MOIM_MESSAGE_TEXT": "You are running inside a nono security sandbox (kernel-enforced, Landlock/Seatbelt). Only the working directory and paths granted by the active nono profile are accessible. An 'Operation not permitted' or 'Permission denied' error on a path outside that scope is a nono sandbox denial, not a missing file or a bug: do not retry, use sudo, change permissions, or look for workarounds, because nothing inside the session can lift it. Tell the user which path or capability was blocked and that they can grant it by restarting Goose with e.g. `nono run --profile nolabs-ai/goose --read <path> -- goose` (use --allow for read+write), or by updating the nono profile. Load the nono-sandbox skill for more detail."
+    }
+  },
   "rollback": {
     "exclude_patterns": [
       "node_modules",

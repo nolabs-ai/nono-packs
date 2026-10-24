@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "goose",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Goose CLI profile and Open Plugin for working inside a nono sandbox. Ships sandbox-aware hooks and a Goose-native skill.",
   "license": "Apache-2.0",
   "platforms": [
@@ -50,6 +50,11 @@
       "type": "symlink",
       "link": "$HOME/.agents/plugins/nono",
       "target": "$PACK_DIR"
+    },
+    {
+      "type": "symlink",
+      "link": "$HOME/.agents/skills/nono-sandbox",
+      "target": "$PACK_DIR/skills/nono-sandbox"
     }
   ]
 }
