@@ -33,7 +33,6 @@
       "$HOME/.local/state/claude/locks",
       "$HOME/.cache/claude",
       "$NONO_CONFIG/profile-drafts",
-      "/tmp/claude-$UID",
       { "path": "$HOME/Library/Keychains", "when": "macos" }
     ],
     "read": [
@@ -71,7 +70,9 @@
   },
   "environment": {
     "set_vars": {
-      "LC_MESSAGES": "C"
+      "CLAUDE_CODE_TMPDIR": "$HOME/.claude/tmp",
+      "LC_MESSAGES": "C",
+      "TMPDIR": "$HOME/.claude/tmp/claude-$UID"
     }
   },
   "diagnostics": {

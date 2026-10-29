@@ -51,10 +51,20 @@ This prevents common bad guidance such as retrying the same action, suggesting `
 
 ## Sandbox Preparation
 
+The profile also has to make Claude Code's own runtime paths usable inside the sandbox.
 Landlock and Seatbelt can only attach a rule to a path that already exists, and nono
-silently drops a grant for a missing one. `bin/ensure-dirs.sh` runs as a
-`session_hooks.before` script — on the host, before the sandbox goes up — and creates the
-paths the profile grants but the sandbox cannot create for itself.
+silently drops a standalone grant for a missing one. Because capabilities are resolved
+before `session_hooks.before` runs, creating `/tmp/claude-$UID` in that hook would only
+make the grant available to the *next* session.
+
+The profile sets `CLAUDE_CODE_TMPDIR` to `~/.claude/tmp`, where Claude creates its
+per-user `claude-$UID` tree, and points tool-facing `TMPDIR` at that exact tree. Nono
+prepares and grants `~/.claude` before it resolves capabilities, so Claude and its tools
+can create and read temp files on the first launch even when `/tmp/claude-$UID` did not
+exist before the sandbox started. Keeping temp files under this private, already-granted
+directory also avoids broad read access to shared `/tmp`. `bin/ensure-dirs.sh` prepares
+the private temp tree and maintains the other Claude runtime directories, including the
+Linux cross-session socket directory.
 
 ## Included Artifacts
 
