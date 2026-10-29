@@ -37,6 +37,12 @@
     ],
     "bypass_protection": [
       { "path": "$HOME/Library/Keychains", "when": "macos" }
+    ],
+    "deny": [
+      { "path": "$HOME/.codex/app-server-control", "when": "macos" },
+      { "path": "$HOME/.codex/app-server-control/**", "when": "macos" },
+      { "path": "/private/tmp/codex-daemon-*", "when": "macos" },
+      { "path": "/private/tmp/codex-daemon-*/**", "when": "macos" }
     ]
   },
   "network": { "block": false },

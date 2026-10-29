@@ -14,6 +14,14 @@ nono run --profile nolabs-ai/codex -- codex
 
 If the pack isn't already installed, nono will prompt to pull it.
 
+## Background server (daemon)
+
+Recent Codex versions auto-start a detached shared backend (`codex app-server --managed-daemon` plus a `pid-update-loop` updater) and attach every TUI to it over a Unix socket. The daemon outlives the session, so a sandboxed `codex` that attaches to a daemon started outside nono would run its tools outside the sandbox, and a daemon started inside nono keeps that first session's grants after nono exits.
+
+- **macOS:** the profile denies `~/.codex/app-server-control` and `/private/tmp/codex-daemon-*`, so a sandboxed Codex cannot attach to a daemon and falls back to its embedded, in-sandbox server.
+- **Recommended on all platforms:** launch with `nono run --profile nolabs-ai/codex -- codex --no-daemon`.
+- **Linux:** Landlock cannot deny a path inside the `~/.codex` grant, so the socket deny is not applied there yet; use `--no-daemon`. Stop any existing daemon with `codex app-server daemon stop` before sandboxed sessions.
+
 ## What's in the pack
 
 - **`policy.json`** — sandbox profile (loaded as `--profile nolabs-ai/codex`). Grants `~/.codex`, `~/.agents`, `~/.config/nono/{profiles,packages}` (read-only), the OpenAI auth origin, and runtime groups for Node, Rust, Python, Nix.
