@@ -1,0 +1,67 @@
+{
+  "extends": "default",
+  "meta": {
+    "name": "maki",
+    "version": "1.0.0",
+    "description": "Maki CLI agent profile (registry-managed)",
+    "author": "nolabs-ai"
+  },
+  "groups": {
+    "include": [
+      { "name": "user_caches_macos", "when": "macos" },
+      { "name": "user_caches_linux", "when": "linux" },
+      "node_runtime",
+      "rust_runtime",
+      "python_runtime",
+      { "name": "linux_sysfs_read", "when": "linux" },
+      "nix_runtime",
+      "git_config",
+      "unlink_protection"
+    ]
+  },
+  "security": {
+    "signal_mode": "isolated",
+    "capability_elevation": false
+  },
+  "filesystem": {
+    "allow": [
+      "$HOME/.config/maki",
+      "$HOME/.local/share/maki",
+      "$HOME/.local/state/maki",
+      "$HOME/.local/logs/maki",
+      "$HOME/.cache/maki",
+      "$HOME/.maki",
+      "$NONO_CONFIG/profile-drafts"
+    ],
+    "read": [
+      "$HOME/bin/maki",
+      "$HOME/.local/bin/maki",
+      "$NONO_PACKAGES",
+      "$NONO_CONFIG/profiles",
+      "$HOME/.agents/skills"
+    ]
+  },
+  "network": { "block": false },
+  "workdir": { "access": "readwrite" },
+  "session_hooks": {
+    "before": {
+      "script": "$PACK_DIR/bin/ensure-dirs.sh",
+      "timeout_secs": 10
+    }
+  },
+  "open_urls": {
+    "allow_origins": [],
+    "allow_localhost": true
+  },
+  "allow_launch_services": true,
+  "rollback": {
+    "exclude_patterns": [
+      "node_modules",
+      ".next",
+      "__pycache__",
+      "target",
+      ".maki"
+    ],
+    "exclude_globs": ["*.tmp.[0-9]*.[0-9]*"]
+  }
+}

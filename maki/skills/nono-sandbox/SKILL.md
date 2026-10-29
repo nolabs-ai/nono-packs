@@ -1,0 +1,103 @@
+---
+name: nono-sandbox
+description: Understands nono security sandbox constraints. Use when running Maki inside a nono sandbox, when tool operations fail with confirmed permission denials, or when the user asks about sandbox capabilities.
+---
+
+# nono Sandbox Awareness
+
+The user has launched Maki with `nono run --profile <name> -- maki`. You are running inside a **nono security sandbox**. nono enforces OS-level capability restrictions using Landlock (Linux) and Seatbelt (macOS). These are kernel-enforced boundaries that cannot be bypassed from within the session.
+
+## How the sandbox works
+
+nono applies an allow-list of filesystem paths and network rules before your process starts. Everything not explicitly allowed is blocked at the kernel level. There is no escalation path from inside the sandbox.
+
+- **Filesystem**: Only paths granted by the active profile are accessible. The current working directory typically has read-write access.
+- **Network**: May be fully allowed, filtered to specific domains, or completely blocked depending on the profile.
+- **No escalation**: There is no sudo, no permission changes, no workaround that can expand capabilities from within.
+
+## When an operation is denied
+
+Output that explicitly names nono as the denying sandbox is conclusive. `landlock` and `sandbox: deny` signal sandbox enforcement but do not identify its provenance; generic EPERM, EACCES, "Operation not permitted", and "Permission denied" are also ambiguous. With a concrete path, run `nono why --self`; a successful result with status `DENIED` confirms the nono boundary, even when the reason is `path_not_granted` and no policy source is reported. If no path is available or `nono why` does not successfully report `DENIED`, report: `Nono sandbox unconfirmed; this permission failure needs a non-sandbox diagnosis.`
+
+When a nono denial is confirmed:
+
+1. **Do NOT retry** the same operation or try alternative paths.
+2. **Do NOT attempt workarounds** such as:
+   - Copying files to allowed locations
+   - Using sudo or chmod
+   - Accessing the same data through a different path
+   - Suggesting the user run commands manually from another terminal
+3. **Do NOT apologize repeatedly** or suggest you will "try another approach" - there is no other approach.
+
+## Diagnosing the denial
+
+Run `nono why` to understand exactly why the operation was blocked:
+
+```bash
+nono why --self --path /path/that/failed --op read
+```
+
+This tells you:
+- The reason (e.g., `insufficient_access`, `no_matching_capability`)
+- Which group or rule covers the path
+- A suggested fix (e.g., `--allow-file /path/to/file`)
+
+Always run `nono why` before telling the user what to do. It gives you the precise diagnosis.
+
+Never infer the active profile. Use a profile name supplied in the user's launch context, or ask which profile they started with before drafting.
+
+## Helping the user
+
+After diagnosing with `nono why`, present the user with options:
+
+1. **Quick fix** - restart the session with only the access actually needed, using the exact flag `nono why` suggested for the denied operation. Never default to `--allow` (read+write) when the denial was read-only or write-only:
+   ```
+   nono run --profile <active-profile> --read /path/to/needed -- maki    # read-only access
+   nono run --profile <active-profile> --write /path/to/needed -- maki   # write-only access
+   nono run --profile <active-profile> --allow /path/to/needed -- maki   # only when both are required
+   ```
+
+2. **Write a profile draft** - if the user needs this access regularly, offer to draft a nono profile for them. The active profile directory `~/.config/nono/profiles/` is read-only from inside the sandbox by design, so drafts are written to `~/.config/nono/profile-drafts/` and the user promotes them out-of-band.
+
+   If the user agrees, run `nono profile guide` to get the full profile schema, then write the full profile JSON to `~/.config/nono/profile-drafts/<name>.json`.
+
+   If `~/.config/nono/profile-drafts` does not exist or cannot be written, or `nono profile promote --help` is unavailable, do not try to modify profiles directly. Tell the user to upgrade nono, then rerun the draft flow.
+
+   If a user profile of that name already exists in `~/.config/nono/profiles/<name>.json`, read it first, compute the SHA-256 of the exact bytes you read, base your edit on it, then write that hash to `~/.config/nono/profile-drafts/<name>.base`.
+
+   If there is no user profile yet and the current profile is pack-provided or built-in, do not draft a replacement with the same name. Draft a derived profile such as `<active>-local` with `"extends": "<active>"` and add only the extra access there.
+
+   Tell the user: `Drafted <name>. Run \`nono profile promote <name>\` to review and apply, then start sessions with \`nono run --profile <name> -- maki\`.`
+
+## Checking what is allowed
+
+If the environment variable `NONO_CAP_FILE` is set, it points to a JSON file listing the current capabilities. You can read it to understand what paths are accessible:
+
+```bash
+cat "$NONO_CAP_FILE" | jq .
+```
+
+The file contains:
+- `fs`: array of filesystem capabilities with `path`, `resolved`, and `access` fields
+- `net_blocked`: boolean indicating whether network access is blocked
+
+## Maki-specific notes
+
+- Maki state lives in five XDG directories this profile grants: config (`~/.config/maki`), data (`~/.local/share/maki`), state (`~/.local/state/maki`), logs (`~/.local/logs/maki`), and cache (`~/.cache/maki`). The legacy `~/.maki` layout only applies if that directory predates the sandbox; never create it, because maki collapses its whole layout onto it the moment it exists.
+- Maki's own approval layer is not the enforcement boundary; nono is. Sessions are typically started with `maki --yolo` so maki's prompts don't double-gate actions nono already decides, but a maki approval prompt can never fix a nono denial.
+- Maki reads provider API keys from the environment (`api_key_env`, e.g. `ANTHROPIC_API_KEY`) and from `~/.local/state/maki/auth/`. That auth directory is inside the sandbox because maki must read it, so real keys stored there are visible to the sandboxed process — prefer nono phantom credential routes for real keys.
+- Maki packs install into `~/.local/share/maki/site` via git; network is unblocked by this profile, so pack installs and the models.dev catalog fetch work.
+
+## Common scenarios
+
+**"I need to read a config file outside the project"**
+Run `nono why --self --path /path/to/config --op read`, then offer the quick fix using `--read` (not `--allow`) or a profile with read-only access.
+
+**"I need to install a global package"**
+Global package managers write to system paths. Suggest project-local alternatives (e.g., `npx` instead of global install) or offer to write a profile.
+
+**"Network request failed"**
+If the profile blocks network access, the user must use a profile that allows it. Offer to write one.
+
+**"I need to access another project directory"**
+Run `nono why --self --path /path/to/other/project --op readwrite`, then offer the quick fix using `--allow` (readwrite is genuinely needed here) or a profile.

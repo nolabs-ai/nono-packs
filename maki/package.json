@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "name": "maki",
+  "version": "0.1.0",
+  "description": "Maki CLI agent pack and matching nono profile; ships the maki profile and a maki-native sandbox-awareness skill.",
+  "license": "Apache-2.0",
+  "platforms": [
+    "macos",
+    "linux"
+  ],
+  "min_nono_version": "0.75.0",
+  "keywords": [
+    "maki",
+    "nono",
+    "sandbox",
+    "security",
+    "capabilities"
+  ],
+  "artifacts": [
+    {
+      "type": "profile",
+      "path": "policy.json",
+      "install_as": "maki"
+    },
+    {
+      "type": "plugin",
+      "path": "README.md"
+    },
+    {
+      "type": "plugin",
+      "path": "skills/nono-sandbox/SKILL.md"
+    },
+    {
+      "type": "plugin",
+      "path": "bin/ensure-dirs.sh"
+    },
+    {
+      "type": "plugin",
+      "path": "wiring/profile-drafts-dir-marker"
+    }
+  ],
+  "wiring": [
+    {
+      "type": "write_file",
+      "source": "wiring/profile-drafts-dir-marker",
+      "dest": "$NONO_CONFIG/profile-drafts/.nono-maki-pack-marker"
+    },
+    {
+      "type": "write_file",
+      "source": "skills/nono-sandbox/SKILL.md",
+      "dest": "$HOME/.config/maki/skills/nono-sandbox/SKILL.md"
+    }
+  ]
+}
