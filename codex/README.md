@@ -6,21 +6,38 @@
 
 Sandbox profile and Codex plugin for running [OpenAI Codex CLI](https://developers.openai.com/codex) inside a [nono](https://nono.sh) security sandbox.
 
-Install:
+Run Codex with nono as the sandbox and Codex's approval flow retained:
 
-```
-nono run --profile nolabs-ai/codex -- codex
+```bash
+nono run --profile nolabs-ai/codex -- codex --no-daemon --sandbox danger-full-access --ask-for-approval on-request
 ```
 
 If the pack isn't already installed, nono will prompt to pull it.
 
-## Background server (daemon)
+## Codex sandbox isolation
 
-Recent Codex versions auto-start a detached shared backend (`codex app-server --managed-daemon` plus a `pid-update-loop` updater) and attach every TUI to it over a Unix socket. The daemon outlives the session, so a sandboxed `codex` that attaches to a daemon started outside nono would run its tools outside the sandbox, and a daemon started inside nono keeps that first session's grants after nono exits.
+Recent Codex versions normally connect the TUI to a shared background app-server. The app-server owns the agent harness and tool execution, and it can outlive the TUI that started it. Sandboxing only the TUI is therefore not sufficient: a sandboxed TUI could attach to a daemon started outside nono and have its tools execute outside the active nono sandbox. A daemon started inside nono can instead retain that first session's grants after the session exits.
 
-- **macOS:** the profile denies `~/.codex/app-server-control` and `/private/tmp/codex-daemon-*`, so a sandboxed Codex cannot attach to a daemon and falls back to its embedded, in-sandbox server.
-- **Recommended on all platforms:** launch with `nono run --profile nolabs-ai/codex -- codex --no-daemon`.
-- **Linux:** Landlock cannot deny a path inside the `~/.codex` grant, so the socket deny is not applied there yet; use `--no-daemon`. Stop any existing daemon with `codex app-server daemon stop` before sandboxed sessions.
+For a fully contained interactive session, use nono's standard Codex flags together with `--no-daemon`:
+
+```bash
+nono run --profile nolabs-ai/codex -- codex --no-daemon --sandbox danger-full-access --ask-for-approval on-request
+```
+
+- `--no-daemon` makes the TUI use its embedded app-server instead of probing, starting, or attaching to the shared daemon. The embedded server and its tools remain inside the same nono sandbox as the TUI.
+- `--sandbox danger-full-access` disables Codex's overlapping built-in sandbox. nono remains the OS-enforced filesystem and network boundary on both macOS and Linux.
+- `--ask-for-approval on-request` retains Codex's approval flow for actions it decides should require confirmation.
+
+The pack deliberately does not append these flags automatically because a nono profile cannot rewrite the launched command, and `--no-daemon` is incompatible with Codex commands that require the shared server, including `codex agents` and `codex queue`.
+
+If you omit `--no-daemon`, Codex may connect to an already-running daemon outside the sandbox. In that configuration, the profile constrains the TUI process but cannot guarantee that model tools or network requests executed by the external daemon are contained.
+
+### Platform-specific daemon protection
+
+- **macOS:** the profile denies `~/.codex/app-server-control` and `/private/tmp/codex-daemon-*`. This is fail-closed protection against accidentally attaching to a daemon outside nono. Codex does not automatically fall back when its required daemon connection is blocked; restart it with `--no-daemon`.
+- **Linux:** the profile cannot use the same nested path deny. Landlock is allow-list based and cannot subtract the daemon socket from the broader read-write `~/.codex` grant that Codex needs for its state. nono can instead enable default-deny mediation for every pathname Unix socket, but doing so here would also block unrelated sockets used by tools inside Codex. Use `--no-daemon`; it bypasses daemon discovery even when a daemon is already running.
+
+Do not stop a shared daemon merely to start a sandboxed session. `--no-daemon` bypasses it without disrupting other Codex clients.
 
 ## What's in the pack
 
