@@ -11,6 +11,7 @@ The pack provides:
 - a sandbox profile (`policy.json`) granting the correct filesystem and network access, with credential injection routes for OpenAI, Anthropic, Gemini, GitHub, and GitLab
 - installation markers and a `session_hooks.before` hook (`bin/ensure-dirs.sh`) that create opencode's state directories on the host, so the paths exist when nono resolves their sandbox grants on first run
 - a private temporary directory at `~/.cache/opencode/tmp`, exposed as both `TMPDIR` and `BUN_TMPDIR`, so OpenCode and Bun can create temporary files without granting access to the system-wide temporary directory
+- a connect-only unix-socket subtree grant plus `OPENCODE_PTY_SOCKET_DIR` under that directory, so OpenCode's persistent PTY helper is reachable instead of falling back to spawn-per-command
 - a TypeScript plugin (`plugin/nono-sandbox.ts`) that injects nono sandbox context at session start, detects denial signatures in tool results, appends capability context and Option A/B remediation guidance, surfaces the network egress allowlist, and registers a `nono_status` tool
 - a `nono-sandbox` skill that teaches the correct diagnostic flow for filesystem and network-egress denials, credential route setup, and detach/attach usage
 
@@ -53,6 +54,12 @@ This prevents common bad guidance such as retrying the same action, suggesting `
 Landlock and Seatbelt can only grant a filesystem rule for a path that already exists. On a first run, a few state/cache/etc. directories may not exist yet, so the sandboxed opencode process would otherwise fail immediately.
 
 The pack installs zero-byte marker files to create these directories before the profile is first resolved. `policy.json` also wires `bin/ensure-dirs.sh` as a `session_hooks.before` hook, which nono runs on the host before applying the sandbox. The hook resolves through `$PACK_DIR` to the installed pack directory.
+
+## Persistent PTY Sockets
+
+OpenCode's `shell` tool talks to its `opencode-pty` helper over a pathname `AF_UNIX` socket. On macOS a filesystem grant covers `bind(2)` but not `connect(2)` — unix-socket access is a separate capability layer — so without a grant the helper is unreachable and the shell tool silently falls back to spawning each command directly, after a ~5 s handshake timeout per call.
+
+The pack points `OPENCODE_PTY_SOCKET_DIR` at `~/.cache/opencode/tmp/pty-sockets` and grants `filesystem.unix_socket_subtree` on that directory. The socket name is a fresh UUID per daemon, so the grant has to be a subtree rather than a single path. It is connect-only: the daemon binds the socket itself, and `bin/ensure-dirs.sh` creates the directory before the sandbox goes up.
 
 ## Credential Injection
 

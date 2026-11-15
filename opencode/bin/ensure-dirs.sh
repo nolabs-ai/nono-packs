@@ -14,6 +14,7 @@ mkdir -p \
   "$HOME/.config/opencode" \
   "$HOME/.cache/opencode" \
   "$HOME/.cache/opencode/tmp" \
+  "$HOME/.cache/opencode/tmp/pty-sockets" \
   "$HOME/.local/share/opencode" \
   "$HOME/.local/share/opentui" \
   "$HOME/.local/state/opencode"

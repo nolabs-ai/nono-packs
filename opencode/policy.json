@@ -50,6 +50,9 @@
     ],
     "suppress_save_prompt": [
       "$NONO_PACKAGES/nolabs-ai/opencode"
+    ],
+    "unix_socket_subtree": [
+      "$HOME/.cache/opencode/tmp/pty-sockets"
     ]
   },
   "network": {
@@ -117,7 +120,8 @@
   "environment": {
     "set_vars": {
       "TMPDIR": "$HOME/.cache/opencode/tmp",
-      "BUN_TMPDIR": "$HOME/.cache/opencode/tmp"
+      "BUN_TMPDIR": "$HOME/.cache/opencode/tmp",
+      "OPENCODE_PTY_SOCKET_DIR": "$HOME/.cache/opencode/tmp/pty-sockets"
     }
   },
   "rollback": {
