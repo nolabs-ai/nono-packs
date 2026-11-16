@@ -1,126 +1,101 @@
-# nono-packs
+<div align="center">
 
-`nono-packs` is the package and plugin registry for the `nono` ecosystem.
+# nono packs
 
-This repository is the source for installable packs that extend agent runtimes with `nono`-specific integrations such as:
+**Sandbox profiles, plugins, and skills for your AI agents.**
 
-- agent plugins
-- hook definitions
-- packaged skills
-- support scripts and helper assets
+Run your agent inside [nono](https://nono.sh) with the runtime configuration
+and guidance it needs to work within the sandbox.
 
-Each top-level directory is an individual pack. Packs are described by a `package.json` manifest and can ship one or more artifacts that are installed into the target agent environment.
+[Quick start](#quick-start) · [Available packs](#available-packs) · [Contributing](#contributing) · [nono docs](https://nono.sh/docs)
 
-## Namespace Migration
+[![Latest nono release](https://img.shields.io/github/v/release/nolabs-ai/nono?label=nono&sort=date)](https://github.com/nolabs-ai/nono/releases/latest)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
+[![Pack smoke tests](https://github.com/nolabs-ai/nono-packs/actions/workflows/pack-smoke-test.yml/badge.svg)](https://github.com/nolabs-ai/nono-packs/actions/workflows/pack-smoke-test.yml)
 
-This repository was previously published under the `always-further` namespace. All packs are now published under `nolabs-ai`.
+</div>
 
-If you have an existing install from `always-further`, you must remove it before pulling from `nolabs-ai`. `nono pull` refuses to overwrite files it did not install (sha256 mismatch), so a direct re-pull will fail with a `write_file: refusing to overwrite` error. The fix is to remove the old pack first:
+## Quick start
 
-```bash
-nono remove always-further/<pack>
-nono pull nolabs-ai/<pack>
-```
-
-`nono remove` fully reverses all wiring from the old install (symlinks, written files, JSON array entries), leaving a clean slate for the new namespace to apply its own wiring.
-
-Local config files under `~/.config/nono/packages/always-further/` are also safe to delete after removal.
-
-## Repository Layout
-
-Current packs in this repository include:
-
-- [`claude`](./claude): Claude Code integration for working inside the `nono` sandbox
-- [`claude-autoresearch`](./claude-autoresearch): GPU-enabled profile and plugin for running [autoresearch](https://github.com/Kexin-xu-01/autoresearch-nono) autonomous ML loops inside the `nono` sandbox — A100/CUDA workloads with kernel-level enforcement inherited by training subprocesses
-- [`codex`](./codex): Codex integration for working inside the `nono` sandbox
-- [`deepseek`](./deepseek): DeepSeek Harness (`dsh`) CLI agent profile and skill for working inside the `nono` sandbox
-- [`goose`](./goose): Goose CLI profile and Open Plugin for working inside the `nono` sandbox
-- [`kilo`](./kilo): Kilo Code CLI agent profile and skill for working inside the `nono` sandbox
-- [`maki`](./maki): Maki CLI agent profile and skill for working inside the `nono` sandbox
-- [`kimchi`](./kimchi): Kimchi Coding Agent package and profile for working inside the `nono` sandbox
-- [`mistral-vibe`](./mistral-vibe): Mistral Vibe CLI profile and sandbox-aware skill for working inside the `nono` sandbox
-- [`opencode`](./opencode): OpenCode v2 integration using an isolated standalone server
-- [`opencode-v1`](./opencode-v1): OpenCode v1 integration based on the last known-working v1 profile
-- [`omp`](./omp): Oh My Pi coding harness plugin and profile for working inside the `nono` sandbox
-- [`pi`](./pi): Pi Coding Agent package and profile for working inside the `nono` sandbox
-
-Typical pack contents:
-
-- `package.json`: pack manifest used by the registry
-- `README.md`: pack-specific documentation
-- `skills/`: packaged skills distributed with the pack
-- `hooks/`: hook registrations for the target runtime
-- `bin/`: executable helper scripts used by hooks or setup flows
-
-## What This Registry Is For
-
-The goal of this repository is to keep agent-facing integrations versioned, reviewable, and distributable separately from the core `nono` runtime.
-
-That allows a pack to:
-
-- teach an agent how to behave correctly inside the `nono` sandbox
-- install runtime-specific hooks
-- bundle skills and prompts that improve sandbox diagnostics
-- ship small helper scripts without coupling them to the main `nono` repository
-
-## Pack Format
-
-Each pack should define:
-
-- a unique `name`
-- a `pack_type`
-- a short `description`
-- supported `platforms`
-- a `min_nono_version`
-- an `artifacts` list describing what should be installed
-
-The exact artifact set depends on the target runtime. For example, a Claude-oriented pack can include Claude plugin metadata, hook definitions, and sandbox-awareness skills.
-
-## Local Development
-
-Use `scripts/dev-install.sh` to install, update, or remove a pack directly from your local checkout without publishing to the registry. This is the primary workflow for testing changes before release.
-
-```
-scripts/dev-install.sh <command> <pack> [--namespace <ns>] [--dry-run]
-```
-
-**Commands:**
-
-| Command | Description |
-|---------|-------------|
-| `install` | Apply all wiring from `<pack>/package.json` |
-| `update` | Re-apply wiring (idempotent; safe to run after content changes) |
-| `remove` | Undo all wiring from `<pack>/package.json` |
-
-**Options:**
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `--namespace <ns>` | `nolabs-ai` | Value substituted for `$NS` in wiring paths |
-| `--dry-run` | — | Print every action without touching the filesystem |
-
-**Examples:**
+Install [nono](https://nono.sh/docs) and your agent CLI, then pull its pack and launch it with the matching profile. For Claude Code:
 
 ```bash
-# Install the claude pack locally
-scripts/dev-install.sh install claude
-
-# Preview what remove would do without making changes
-scripts/dev-install.sh remove codex --dry-run
-
-# Re-apply after editing wiring files
-scripts/dev-install.sh update copilot-cli
-
-# Install under a custom namespace
-scripts/dev-install.sh install openclaw --namespace my-fork
+nono pull nolabs-ai/claude
+nono run --profile nolabs-ai/claude -- claude
 ```
 
-The script reads `package.json` from the pack directory, expands the variables `$HOME`, `$XDG_CONFIG_HOME`, `$NONO_CONFIG`, `$NONO_PACKAGES`, `$PACK_DIR`, `$NS`, and `$NOW`, then applies each entry in the `wiring` array. All six wiring types are supported: `symlink`, `write_file`, `json_merge`, `json_array_append`, `toml_block`, and `yaml_merge`. The `remove` command processes entries in reverse order and undoes each operation cleanly.
+Choose another agent from the catalog below for its setup and launch instructions.
+In particular, [Codex](./codex/README.md) needs `--no-daemon` alongside its sandbox and approval flags, and [OpenCode v2](./opencode/README.md) uses `--standalone` to keep tool execution inside the nono sandbox.
 
-Profile artifacts are installed under `-dev` names so local testing does not shadow registry-installed profiles. For example, `scripts/dev-install.sh install codex` installs `--profile codex-dev`, and `scripts/dev-install.sh install opencode` installs `--profile opencode-dev`. The installer prints the available `--profile` values at the end.
+Packs configure an existing agent installation. Each pack's `package.json` declares its supported platforms and minimum nono version.
 
-`yaml_merge` requires PyYAML (`pip install pyyaml`). All other operations use the Python 3 standard library.
+## Available packs
 
-## Current Status
+| Pack | Agent | Integration |
+| --- | --- | --- |
+| [`antigravity`](./antigravity/README.md) | Antigravity CLI (`agy`) | Profile, plugin, diagnostic hook, and skill |
+| [`claude`](./claude/README.md) | Claude Code | Profile, plugin, diagnostic hooks, and skill |
+| [`claude-autoresearch`](./claude-autoresearch/README.md) | Claude Code + autoresearch | GPU-enabled profile and plugin for autonomous ML workloads |
+| [`codex`](./codex/README.md) | OpenAI Codex CLI | Profile, plugin, and sandbox guidance |
+| [`copilot-cli`](./copilot-cli/README.md) | GitHub Copilot CLI | Authentication-specific profiles, plugin, hooks, and skill |
+| [`deepseek`](./deepseek/README.md) | DeepSeek Harness (`dsh`) | Profile and skill |
+| [`goose`](./goose/README.md) | Goose CLI | Profile, Open Plugin, diagnostic hook, and skill |
+| [`hermes`](./hermes/README.md) | Hermes Agent | Profile, plugin, skill, and configuration defaults |
+| [`kilo`](./kilo/README.md) | Kilo Code CLI | Profile and skill |
+| [`kimchi`](./kimchi/README.md) | Kimchi Coding Agent | Profile, extension, and sandbox guidance |
+| [`maki`](./maki/README.md) | Maki CLI | Profile and skill |
+| [`mistral-vibe`](./mistral-vibe/README.md) | Mistral Vibe | Profile, diagnostic hook, and skill |
+| [`omp`](./omp/README.md) | Oh My Pi | Profile and extension with diagnostic hooks |
+| [`openclaw`](./openclaw/README.md) | OpenClaw | Profile, plugins, hooks, and skill for multiple instances |
+| [`opencode`](./opencode/README.md) | OpenCode v2 | Profile, plugin, skill, and standalone server support |
+| [`opencode-v1`](./opencode-v1/README.md) | OpenCode v1 | Profile, plugin, and skill for v1 installations |
+| [`pi`](./pi/README.md) | Pi Coding Agent | Profile, extension, and skill |
 
-This repository is intended to host multiple packs, packages, and skills for the wider `nono` registry. The [`claude`](./claude) pack is the initial example and documents the expected structure for future additions. The [`claude-autoresearch`](./claude-autoresearch) pack extends it with GPU access and ML-specific filesystem grants for overnight autonomous research runs — see [Kexin-xu-01/autoresearch-nono](https://github.com/Kexin-xu-01/autoresearch-nono) for the full workload setup.
+All packs declare macOS and Linux support except **`copilot-cli` (macOS only)** and **`claude-autoresearch` (Linux only)**. See each pack's README for authentication, runtime requirements, and profile details.
+
+## What a pack adds
+
+nono enforces the sandbox at the OS level. Packs supply the agent-specific configuration and guidance:
+
+- **Profiles** grant access to the agent's runtime paths and configure its sandbox settings.
+- **Plugins and hooks** connect the agent to sandbox diagnostics where its runtime supports them.
+- **Skills and instructions** teach the agent how to inspect denied access and explain the permissions it needs.
+- **Install wiring** registers plugins, links skills, and applies configuration to the target runtime.
+
+These integrations are versioned and distributed independently of the [nono runtime](https://github.com/nolabs-ai/nono).
+
+## Contributing
+
+Each top-level pack directory contains a `package.json` manifest and its installable files. Start with the pack you want to change, or use an existing integration for the same kind of runtime as a reference.
+
+<details>
+<summary><strong>Pack structure and manifest reference</strong></summary>
+
+A typical pack looks like this; the files depend on the target runtime:
+
+```text
+<pack>/
+├── package.json     # Metadata, artifacts, and install wiring
+├── README.md        # Setup, usage, and runtime requirements
+├── policy.json      # Sandbox profile (some packs ship multiple profiles)
+├── skills/          # Agent guidance
+├── hooks/           # Runtime hook definitions
+├── bin/             # Setup and diagnostic helpers
+└── wiring/          # Configuration fragments and install assets
+```
+
+Manifests declare `schema_version`, `name`, `version`, `description`, `license`, `platforms`, `min_nono_version`, and `artifacts`. Each artifact identifies its type and source path; profile artifacts also declare an `install_as` name and can provide aliases. The `wiring` array defines how the pack connects to the agent's configuration.
+
+See [`claude/package.json`](./claude/package.json) for a plugin and hooks example, or [`deepseek/package.json`](./deepseek/package.json) for a profile and skill example.
+
+</details>
+
+### Validation and releases
+
+The [pack smoke test workflow](./.github/workflows/pack-smoke-test.yml) checks changed packs on macOS and Linux, covering profile resolution, validation, and sandbox execution.
+
+For maintainers, [`scripts/release.sh`](./scripts/release.sh) creates and pushes a `<pack>-v<version>` tag to trigger the matching publish workflow. Those workflows sign pack artifacts with Sigstore and publish them to the nono registry. Use `--dry-run` to preview a release.
+
+## License
+
+[Apache 2.0](./LICENSE).
